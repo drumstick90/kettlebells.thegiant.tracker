@@ -1,10 +1,23 @@
-import type { LocalDatabase, WorkoutSession } from '../../../schema';
+import type { LocalDatabase, WorkoutSession, SetTiming } from '../../../schema';
 import type { GiantDayPlan } from '../../../domain/giant/types';
 import { addSession, createSession } from '../../../modules/workouts/service';
 import type { FinishLiveSessionInput, GiantSetEvent, GiantSetTarget } from './types';
 
+function eventsToSetTimings(
+  events: GiantSetEvent[],
+  startedAt: string
+): SetTiming[] {
+  const startedMs = new Date(startedAt).getTime();
+  return events.map((e) => ({
+    setIndex: e.setIndex,
+    completedAt: new Date(startedMs + e.elapsedDeciseconds * 100).toISOString(),
+    repsTarget: e.repsTarget,
+    ladderCycle: e.ladderCycle ?? null,
+    ladderStep: e.ladderStep ?? null,
+  }));
+}
+
 const PROGRAM_ID = 'prog-the-giant';
-const LIVE_EVENT_PREFIX = 'LIVE_EVENT_LOG:';
 
 export function formatElapsedLabelFromDeciseconds(totalDeciseconds: number): string {
   const clamped = Math.max(0, totalDeciseconds);
@@ -62,17 +75,6 @@ export function undoLastSetEvent(events: GiantSetEvent[]): GiantSetEvent[] {
   return events.slice(0, -1);
 }
 
-export function buildLiveNotes(events: GiantSetEvent[], existingNotes?: string): string | undefined {
-  const payload = JSON.stringify(events);
-  const liveBlock = `${LIVE_EVENT_PREFIX}${payload}`;
-
-  if (existingNotes && existingNotes.trim().length > 0) {
-    return `${existingNotes.trim()}\n\n${liveBlock}`;
-  }
-
-  return liveBlock;
-}
-
 export function calculateTotalRepsFromEvents(events: GiantSetEvent[]): number {
   return events.reduce((acc, event) => acc + event.repsTarget, 0);
 }
@@ -89,7 +91,8 @@ export function finishGiantLiveSession(
     programId: PROGRAM_ID,
     startedAt: input.startedAt,
     weightKg: input.weightKg,
-    notes: buildLiveNotes(input.events, input.existingNotes),
+    notes: input.existingNotes?.trim() || undefined,
+    setEvents: eventsToSetTimings(input.events, input.startedAt),
     metrics: {
       version: input.versionNumber,
       week: input.week,

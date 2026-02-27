@@ -7,14 +7,18 @@ interface ScreenScaffoldProps {
   children: ReactNode;
   scroll?: boolean;
 }
-
 export function ScreenScaffold({ children, scroll = true }: ScreenScaffoldProps) {
   const content = <View style={styles.content}>{children}</View>;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       {scroll ? (
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled
+          directionalLockEnabled
+        >
           {content}
         </ScrollView>
       ) : (

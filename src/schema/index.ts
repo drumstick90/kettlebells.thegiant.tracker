@@ -44,10 +44,27 @@ export interface ProgramTemplate {
   defaultWeightKg?: number;
 }
 
+// ─── Timestamp per singola serie (ladder/fixed) ───────────────────────────────
+/** Timestamp di completamento di ogni singola serie, per analisi intervalli/rest */
+export interface SetTiming {
+  setIndex: number;
+  /** Quando la serie è stata completata (ISO 8601) */
+  completedAt: string;
+  repsTarget: number;
+  /** Ciclo ladder (1, 2, 3...) — null per programmi fixed */
+  ladderCycle?: number | null;
+  /** Step dentro la ladder (1, 2, 3...) — null per programmi fixed */
+  ladderStep?: number | null;
+}
+
+export type WorkoutStatus = 'in_progress' | 'completed' | 'aborted';
+
 // ─── Sessione di allenamento ─────────────────────────────────────────────────
 export interface WorkoutSession {
   id: EntityId;
   programId: EntityId;
+  /** Stato della sessione */
+  status?: WorkoutStatus;
   /** Data/ora inizio (ISO 8601) */
   startedAt: string;
   /** Data/ora fine (ISO 8601), opzionale se in corso */
@@ -56,6 +73,8 @@ export interface WorkoutSession {
   weightKg: number;
   /** Metriche specifiche del programma (es. reps totali, tempo, round) */
   metrics: Record<string, number>;
+  /** Timestamp di ogni singola serie (per analisi intervalli, rest, densità) */
+  setEvents: SetTiming[];
   /** Note libere */
   notes?: string | null;
   /** Riferimento evento calendario esterno (Apple/Google) */

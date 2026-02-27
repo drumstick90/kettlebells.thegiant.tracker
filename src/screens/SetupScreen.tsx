@@ -1,13 +1,13 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { GiantDay, GiantVersion } from '../domain/giant/types';
 import { getGiantDayPlan } from '../domain/giant/rules';
 import type { RootStackParamList } from '../navigation/types';
 import { AppButton } from '../ui/primitives/AppButton';
 import { AppCard } from '../ui/primitives/AppCard';
 import { ScreenScaffold } from '../ui/primitives/ScreenScaffold';
-import { colors, spacing, typography } from '../ui/theme/tokens';
+import { colors, spacing } from '../ui/theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Setup'>;
 
@@ -15,6 +15,10 @@ const VERSIONS: GiantVersion[] = ['1.0', '1.1', '1.2', '2.0', '3.0'];
 const WEEKS: Array<1 | 2 | 3 | 4> = [1, 2, 3, 4];
 const DAYS: GiantDay[] = [1, 2, 3];
 const TIMERS: Array<20 | 30> = [20, 30];
+const MIN_WEIGHT_KG = 4;
+const MAX_WEIGHT_KG = 80;
+const WEIGHT_ITEM_HEIGHT = 36;
+const WEIGHT_VISIBLE_ROWS = 5;
 
 export function SetupScreen({ navigation, route }: Props) {
   const prefill = route.params?.prefill;
@@ -22,11 +26,40 @@ export function SetupScreen({ navigation, route }: Props) {
   const [week, setWeek] = useState<1 | 2 | 3 | 4>(prefill?.week ?? 1);
   const [day, setDay] = useState<GiantDay>(prefill?.day ?? 1);
   const [timerMinutes, setTimerMinutes] = useState<20 | 30>(prefill?.timerMinutes ?? 20);
-  const [weightText, setWeightText] = useState(String(prefill?.weightKg ?? 24));
+  const [weightKg, setWeightKg] = useState(prefill?.weightKg ?? 24);
+  const [isWheelScrollEnabled, setIsWheelScrollEnabled] = useState(false);
+  const weightOptions = useMemo(
+    () => Array.from({ length: MAX_WEIGHT_KG - MIN_WEIGHT_KG + 1 }, (_, idx) => MIN_WEIGHT_KG + idx),
+    []
+  );
+  const weightListRef = useRef<FlatList<number>>(null);
 
   const plan = useMemo(() => getGiantDayPlan(version, day), [day, version]);
-  const parsedWeight = Number(weightText);
-  const weightKg = Number.isFinite(parsedWeight) && parsedWeight > 0 ? parsedWeight : 24;
+
+  useEffect(() => {
+    const initialIndex = Math.max(0, Math.min(weightOptions.length - 1, weightKg - MIN_WEIGHT_KG));
+    const timeout = setTimeout(() => {
+      weightListRef.current?.scrollToIndex({ index: initialIndex, animated: false });
+    }, 0);
+
+    return () => clearTimeout(timeout);
+  }, [weightOptions.length]);
+
+  const handleWeightSnap = (offsetY: number) => {
+    const rawIndex = Math.round(offsetY / WEIGHT_ITEM_HEIGHT);
+    const clampedIndex = Math.max(0, Math.min(weightOptions.length - 1, rawIndex));
+    const nextWeight = weightOptions[clampedIndex];
+    if (nextWeight !== weightKg) {
+      setWeightKg(nextWeight);
+    }
+  };
+
+  const handleWheelTouchStart = (touchY: number) => {
+    const centerStart = WEIGHT_ITEM_HEIGHT * ((WEIGHT_VISIBLE_ROWS - 1) / 2);
+    const centerEnd = centerStart + WEIGHT_ITEM_HEIGHT;
+    const startsInCenterRow = touchY >= centerStart && touchY <= centerEnd;
+    setIsWheelScrollEnabled(startsInCenterRow);
+  };
 
   return (
     <ScreenScaffold>
@@ -50,14 +83,61 @@ export function SetupScreen({ navigation, route }: Props) {
         <OptionRow options={TIMERS} value={timerMinutes} onChange={setTimerMinutes} formatter={(v) => `${v} min`} />
 
         <Text style={styles.label}>LOAD (KG)</Text>
-        <TextInput
-          value={weightText}
-          onChangeText={setWeightText}
-          keyboardType="numeric"
-          style={styles.input}
-          placeholder="24"
-          placeholderTextColor="#c8c8c8"
-        />
+        <View style={styles.wheelWrap}>
+          <FlatList
+            ref={weightListRef}
+            data={weightOptions}
+            keyExtractor={(item) => String(item)}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={isWheelScrollEnabled}
+            nestedScrollEnabled
+            directionalLockEnabled
+            alwaysBounceVertical={false}
+            snapToInterval={WEIGHT_ITEM_HEIGHT}
+            decelerationRate="fast"
+            style={styles.wheelList}
+            contentContainerStyle={styles.wheelContent}
+            getItemLayout={(_, index) => ({
+              length: WEIGHT_ITEM_HEIGHT,
+              offset: WEIGHT_ITEM_HEIGHT * index,
+              index,
+            })}
+            onTouchStart={(event) => handleWheelTouchStart(event.nativeEvent.locationY)}
+            onTouchCancel={() => setIsWheelScrollEnabled(false)}
+            onTouchEnd={() => setIsWheelScrollEnabled(false)}
+            onMomentumScrollEnd={(event) => handleWeightSnap(event.nativeEvent.contentOffset.y)}
+            onScrollEndDrag={(event) => handleWeightSnap(event.nativeEvent.contentOffset.y)}
+            renderItem={({ item }) => {
+              const distanceFromSelected = Math.abs(item - weightKg);
+              const selected = distanceFromSelected === 0;
+              const adjacent = distanceFromSelected === 1;
+              return (
+                <Pressable
+                  onPress={() => {
+                    setWeightKg(item);
+                    weightListRef.current?.scrollToIndex({
+                      index: item - MIN_WEIGHT_KG,
+                      animated: true,
+                    });
+                  }}
+                  style={styles.wheelItem}
+                >
+                  <Text
+                    style={[
+                      styles.wheelItemText,
+                      selected && styles.wheelItemTextSelected,
+                      adjacent && styles.wheelItemTextAdjacent,
+                      distanceFromSelected > 1 && styles.wheelItemTextHidden,
+                    ]}
+                  >
+                    {item}
+                  </Text>
+                </Pressable>
+              );
+            }}
+          />
+          <View style={styles.wheelSelectionBand} pointerEvents="none" />
+        </View>
       </AppCard>
 
       <AppCard inverse>
@@ -173,14 +253,56 @@ const styles = StyleSheet.create({
   optionChipTextSelected: {
     color: colors.surfaceBase,
   },
-  input: {
-    borderBottomWidth: 2,
-    borderBottomColor: colors.ink800,
-    paddingVertical: spacing.xs,
-    fontSize: 22,
-    color: colors.ink800,
-    fontWeight: '500',
-    fontFamily: typography.mono,
+  wheelWrap: {
+    height: WEIGHT_ITEM_HEIGHT * WEIGHT_VISIBLE_ROWS,
+    borderWidth: 1,
+    borderColor: colors.surfaceBase,
+    backgroundColor: colors.surfaceBase,
+    overflow: 'hidden',
+  },
+  wheelList: {
+    flex: 1,
+  },
+  wheelContent: {
+    paddingVertical: WEIGHT_ITEM_HEIGHT * ((WEIGHT_VISIBLE_ROWS - 1) / 2),
+  },
+  wheelItem: {
+    height: WEIGHT_ITEM_HEIGHT,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  wheelItemText: {
+    fontSize: 19,
+    color: colors.quiet,
+    fontWeight: '300',
+    opacity: 0.4,
+  },
+  wheelItemTextSelected: {
+    color: colors.ink900,
+    fontWeight: '600',
+    fontSize: 28,
+    opacity: 1,
+  },
+  wheelItemTextAdjacent: {
+    fontSize: 16,
+    fontWeight: '300',
+    opacity: 0.45,
+  },
+  wheelItemTextHidden: {
+    opacity: 0,
+  },
+  wheelSelectionBand: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: WEIGHT_ITEM_HEIGHT * ((WEIGHT_VISIBLE_ROWS - 1) / 2),
+    height: WEIGHT_ITEM_HEIGHT,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderTopColor: colors.borderSoft,
+    borderBottomColor: colors.borderSoft,
+    backgroundColor: colors.surfaceBase,
+    opacity: 0.25,
   },
   previewKicker: {
     color: '#d4d4d4',

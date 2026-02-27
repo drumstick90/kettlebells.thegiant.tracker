@@ -1,59 +1,39 @@
-/**
- * Migrazioni schema
- * Quando si aggiunge il sync server, i dati locali vengono:
- * 1. Esportati (backup)
- * 2. Migrati al nuovo schema se necessario
- * 3. Inviati al server al primo login
- * 4. Merge con dati server (last-write-wins o custom resolution)
- */
-
 import type { LocalDatabase } from '../schema';
-import type { MigrationResult } from './types';
+import { SCHEMA_VERSION } from '../schema';
+import { validateLocalDatabase } from './validation';
 
-type Migrator = (db: LocalDatabase) => LocalDatabase;
-
-const migrations: Record<number, Migrator> = {
-  // Esempio: 2: (db) => ({ ...db, schemaVersion: 2, newField: [] }),
-};
-
-export function migrate(db: LocalDatabase): MigrationResult {
-  let current = db;
-  let fromVersion = db.schemaVersion;
-  const targetVersion = 1; // SCHEMA_VERSION attuale
-
-  if (fromVersion >= targetVersion) {
-    return { success: true, fromVersion, toVersion: fromVersion };
-  }
-
-  try {
-    for (let v = fromVersion + 1; v <= targetVersion; v++) {
-      const migrator = migrations[v];
-      if (migrator) {
-        current = migrator(current);
-        current.schemaVersion = v;
-      }
-    }
-    return {
-      success: true,
-      fromVersion,
-      toVersion: targetVersion,
-      migratedRecords:
-        current.sessions.length + current.progress.length,
-    };
-  } catch (err) {
-    return {
-      success: false,
-      fromVersion,
-      toVersion: fromVersion,
-      error: err instanceof Error ? err.message : String(err),
-    };
-  }
+export interface MigrationOutcome {
+  db: LocalDatabase;
+  migrated: boolean;
+  fromVersion: number;
+  toVersion: number;
 }
 
-/** Export per backup prima di migrazione/login */
-export function exportForBackup(db: LocalDatabase): string {
-  return JSON.stringify({
-    ...db,
-    lastBackupAt: new Date().toISOString(),
-  });
+/**
+ * Lean migration hook:
+ * - today: no-op forward migration
+ * - still validates the result so broken migrations fail early
+ */
+export function migrateDatabase(db: LocalDatabase): MigrationOutcome {
+  const fromVersion = db.schemaVersion;
+  const nextDb: LocalDatabase =
+    fromVersion === SCHEMA_VERSION
+      ? db
+      : {
+          ...db,
+          schemaVersion: SCHEMA_VERSION,
+        };
+
+  const validation = validateLocalDatabase(nextDb);
+  if (!validation.ok) {
+    throw new Error(`Migration produced invalid database: ${validation.error}`);
+  }
+
+  return {
+    db: validation.value,
+    migrated: fromVersion !== SCHEMA_VERSION,
+    fromVersion,
+    toVersion: SCHEMA_VERSION,
+  };
 }
+

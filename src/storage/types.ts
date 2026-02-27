@@ -22,6 +22,7 @@ export interface MigrationResult {
   success: boolean;
   fromVersion: number;
   toVersion: number;
+  db?: LocalDatabase;
   migratedRecords?: number;
   error?: string;
 }

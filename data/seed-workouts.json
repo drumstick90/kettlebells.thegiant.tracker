@@ -1,0 +1,1003 @@
+{
+  "schemaVersion": 2,
+  "programs": [
+    {
+      "id": "prog-the-giant",
+      "type": "the_giant",
+      "name": "The Giant",
+      "structure": "10x10 Clean & Press",
+      "unit": "reps",
+      "defaultWeightKg": 24
+    },
+    {
+      "id": "prog-simple-sinister",
+      "type": "simple_sinister",
+      "name": "Simple & Sinister",
+      "structure": "100 swings + 10 TGUs",
+      "unit": "reps",
+      "defaultWeightKg": 24
+    },
+    {
+      "id": "prog-dry-fighting",
+      "type": "dry_fighting_weight",
+      "name": "Dry Fighting Weight",
+      "structure": "5x5",
+      "unit": "reps",
+      "defaultWeightKg": 24
+    }
+  ],
+  "sessions": [
+    {
+      "id": "1772150649461-maom4cc",
+      "programId": "prog-the-giant",
+      "startedAt": "2025-02-03T07:15:00.000Z",
+      "endedAt": "2025-02-03T07:25:00.000Z",
+      "status": "completed",
+      "weightKg": 24,
+      "metrics": {
+        "version": 1,
+        "week": 1,
+        "day": 1,
+        "timerMinutes": 30,
+        "setsCompleted": 8,
+        "totalReps": 40,
+        "repsPerSet": 5,
+        "endedByTimer": 1,
+        "endedManually": 0
+      },
+      "setEvents": [
+        {
+          "setIndex": 1,
+          "completedAt": "2025-02-03T07:15:00.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 2,
+          "completedAt": "2025-02-03T07:16:10.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 3,
+          "completedAt": "2025-02-03T07:17:22.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 4,
+          "completedAt": "2025-02-03T07:18:39.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 5,
+          "completedAt": "2025-02-03T07:19:52.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 6,
+          "completedAt": "2025-02-03T07:21:12.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 7,
+          "completedAt": "2025-02-03T07:22:26.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 8,
+          "completedAt": "2025-02-03T07:23:41.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        }
+      ],
+      "notes": null,
+      "calendarEventId": null,
+      "calendarProvider": null,
+      "_sync": {
+        "updatedAt": "2026-02-27T00:04:09.461Z",
+        "version": 1,
+        "source": "local",
+        "pendingSync": true
+      }
+    },
+    {
+      "id": "1772150649461-26j2pwe",
+      "programId": "prog-the-giant",
+      "startedAt": "2025-02-05T18:30:00.000Z",
+      "endedAt": "2025-02-05T18:39:00.000Z",
+      "status": "aborted",
+      "weightKg": 24,
+      "metrics": {
+        "version": 1,
+        "week": 1,
+        "day": 2,
+        "timerMinutes": 30,
+        "setsCompleted": 7,
+        "totalReps": 42,
+        "repsPerSet": 6,
+        "endedByTimer": 0,
+        "endedManually": 1
+      },
+      "setEvents": [
+        {
+          "setIndex": 1,
+          "completedAt": "2025-02-05T18:30:00.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 2,
+          "completedAt": "2025-02-05T18:31:00.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 3,
+          "completedAt": "2025-02-05T18:32:10.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 4,
+          "completedAt": "2025-02-05T18:33:19.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 5,
+          "completedAt": "2025-02-05T18:34:41.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 6,
+          "completedAt": "2025-02-05T18:35:58.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 7,
+          "completedAt": "2025-02-05T18:37:09.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        }
+      ],
+      "notes": null,
+      "calendarEventId": null,
+      "calendarProvider": null,
+      "_sync": {
+        "updatedAt": "2026-02-27T00:04:09.461Z",
+        "version": 1,
+        "source": "local",
+        "pendingSync": true
+      }
+    },
+    {
+      "id": "1772150649461-lerlruv",
+      "programId": "prog-the-giant",
+      "startedAt": "2025-02-07T07:00:00.000Z",
+      "endedAt": "2025-02-07T07:07:00.000Z",
+      "status": "completed",
+      "weightKg": 24,
+      "metrics": {
+        "version": 1,
+        "week": 1,
+        "day": 3,
+        "timerMinutes": 20,
+        "setsCompleted": 6,
+        "totalReps": 24,
+        "repsPerSet": 4,
+        "endedByTimer": 1,
+        "endedManually": 0
+      },
+      "setEvents": [
+        {
+          "setIndex": 1,
+          "completedAt": "2025-02-07T07:00:00.000Z",
+          "repsTarget": 4,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 2,
+          "completedAt": "2025-02-07T07:01:01.000Z",
+          "repsTarget": 4,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 3,
+          "completedAt": "2025-02-07T07:02:04.000Z",
+          "repsTarget": 4,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 4,
+          "completedAt": "2025-02-07T07:03:17.000Z",
+          "repsTarget": 4,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 5,
+          "completedAt": "2025-02-07T07:04:27.000Z",
+          "repsTarget": 4,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 6,
+          "completedAt": "2025-02-07T07:05:43.000Z",
+          "repsTarget": 4,
+          "ladderCycle": null,
+          "ladderStep": null
+        }
+      ],
+      "notes": null,
+      "calendarEventId": null,
+      "calendarProvider": null,
+      "_sync": {
+        "updatedAt": "2026-02-27T00:04:09.461Z",
+        "version": 1,
+        "source": "local",
+        "pendingSync": true
+      }
+    },
+    {
+      "id": "1772150649461-4zkts8n",
+      "programId": "prog-the-giant",
+      "startedAt": "2025-02-10T07:20:00.000Z",
+      "endedAt": "2025-02-10T07:31:00.000Z",
+      "status": "completed",
+      "weightKg": 24,
+      "metrics": {
+        "version": 1,
+        "week": 2,
+        "day": 1,
+        "timerMinutes": 30,
+        "setsCompleted": 9,
+        "totalReps": 45,
+        "repsPerSet": 5,
+        "endedByTimer": 1,
+        "endedManually": 0
+      },
+      "setEvents": [
+        {
+          "setIndex": 1,
+          "completedAt": "2025-02-10T07:20:00.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 2,
+          "completedAt": "2025-02-10T07:21:03.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 3,
+          "completedAt": "2025-02-10T07:22:09.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 4,
+          "completedAt": "2025-02-10T07:23:19.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 5,
+          "completedAt": "2025-02-10T07:24:27.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 6,
+          "completedAt": "2025-02-10T07:25:38.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 7,
+          "completedAt": "2025-02-10T07:26:53.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 8,
+          "completedAt": "2025-02-10T07:28:20.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 9,
+          "completedAt": "2025-02-10T07:29:41.000Z",
+          "repsTarget": 5,
+          "ladderCycle": null,
+          "ladderStep": null
+        }
+      ],
+      "notes": null,
+      "calendarEventId": null,
+      "calendarProvider": null,
+      "_sync": {
+        "updatedAt": "2026-02-27T00:04:09.461Z",
+        "version": 1,
+        "source": "local",
+        "pendingSync": true
+      }
+    },
+    {
+      "id": "1772150649461-wpr9081",
+      "programId": "prog-the-giant",
+      "startedAt": "2025-02-12T18:45:00.000Z",
+      "endedAt": "2025-02-12T18:55:00.000Z",
+      "status": "completed",
+      "weightKg": 24,
+      "metrics": {
+        "version": 1,
+        "week": 2,
+        "day": 2,
+        "timerMinutes": 30,
+        "setsCompleted": 8,
+        "totalReps": 48,
+        "repsPerSet": 6,
+        "endedByTimer": 1,
+        "endedManually": 0
+      },
+      "setEvents": [
+        {
+          "setIndex": 1,
+          "completedAt": "2025-02-12T18:45:00.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 2,
+          "completedAt": "2025-02-12T18:46:03.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 3,
+          "completedAt": "2025-02-12T18:47:08.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 4,
+          "completedAt": "2025-02-12T18:48:18.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 5,
+          "completedAt": "2025-02-12T18:49:41.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 6,
+          "completedAt": "2025-02-12T18:50:53.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 7,
+          "completedAt": "2025-02-12T18:52:19.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 8,
+          "completedAt": "2025-02-12T18:53:42.000Z",
+          "repsTarget": 6,
+          "ladderCycle": null,
+          "ladderStep": null
+        }
+      ],
+      "notes": null,
+      "calendarEventId": null,
+      "calendarProvider": null,
+      "_sync": {
+        "updatedAt": "2026-02-27T00:04:09.461Z",
+        "version": 1,
+        "source": "local",
+        "pendingSync": true
+      }
+    },
+    {
+      "id": "1772150649461-qtmghlh",
+      "programId": "prog-the-giant",
+      "startedAt": "2025-02-14T08:00:00.000Z",
+      "endedAt": null,
+      "status": "aborted",
+      "weightKg": 24,
+      "metrics": {
+        "version": 1,
+        "week": 2,
+        "day": 3,
+        "timerMinutes": 20,
+        "setsCompleted": 5,
+        "totalReps": 20,
+        "repsPerSet": 4,
+        "endedByTimer": 0,
+        "endedManually": 1
+      },
+      "setEvents": [
+        {
+          "setIndex": 1,
+          "completedAt": "2025-02-14T08:00:00.000Z",
+          "repsTarget": 4,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 2,
+          "completedAt": "2025-02-14T08:01:09.000Z",
+          "repsTarget": 4,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 3,
+          "completedAt": "2025-02-14T08:02:12.000Z",
+          "repsTarget": 4,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 4,
+          "completedAt": "2025-02-14T08:03:31.000Z",
+          "repsTarget": 4,
+          "ladderCycle": null,
+          "ladderStep": null
+        },
+        {
+          "setIndex": 5,
+          "completedAt": "2025-02-14T08:04:41.000Z",
+          "repsTarget": 4,
+          "ladderCycle": null,
+          "ladderStep": null
+        }
+      ],
+      "notes": "Mal di testa, fermato prima del timer",
+      "calendarEventId": null,
+      "calendarProvider": null,
+      "_sync": {
+        "updatedAt": "2026-02-27T00:04:09.461Z",
+        "version": 1,
+        "source": "local",
+        "pendingSync": true
+      }
+    },
+    {
+      "id": "1772150649461-aavvnlc",
+      "programId": "prog-the-giant",
+      "startedAt": "2025-02-17T07:10:00.000Z",
+      "endedAt": "2025-02-17T07:22:00.000Z",
+      "status": "completed",
+      "weightKg": 24,
+      "metrics": {
+        "version": 2,
+        "week": 1,
+        "day": 1,
+        "timerMinutes": 30,
+        "setsCompleted": 9,
+        "totalReps": 36,
+        "repsPerSet": null,
+        "endedByTimer": 1,
+        "endedManually": 0
+      },
+      "setEvents": [
+        {
+          "setIndex": 1,
+          "completedAt": "2025-02-17T07:10:00.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 1,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 2,
+          "completedAt": "2025-02-17T07:11:00.000Z",
+          "repsTarget": 4,
+          "ladderCycle": 1,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 3,
+          "completedAt": "2025-02-17T07:12:16.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 1,
+          "ladderStep": 3
+        },
+        {
+          "setIndex": 4,
+          "completedAt": "2025-02-17T07:13:31.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 2,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 5,
+          "completedAt": "2025-02-17T07:14:45.000Z",
+          "repsTarget": 4,
+          "ladderCycle": 2,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 6,
+          "completedAt": "2025-02-17T07:15:55.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 2,
+          "ladderStep": 3
+        },
+        {
+          "setIndex": 7,
+          "completedAt": "2025-02-17T07:17:18.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 3,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 8,
+          "completedAt": "2025-02-17T07:18:39.000Z",
+          "repsTarget": 4,
+          "ladderCycle": 3,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 9,
+          "completedAt": "2025-02-17T07:20:06.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 3,
+          "ladderStep": 3
+        }
+      ],
+      "notes": null,
+      "calendarEventId": null,
+      "calendarProvider": null,
+      "_sync": {
+        "updatedAt": "2026-02-27T00:04:09.461Z",
+        "version": 1,
+        "source": "local",
+        "pendingSync": true
+      }
+    },
+    {
+      "id": "1772150649461-av4yp5b",
+      "programId": "prog-the-giant",
+      "startedAt": "2025-02-19T18:30:00.000Z",
+      "endedAt": null,
+      "status": "aborted",
+      "weightKg": 24,
+      "metrics": {
+        "version": 2,
+        "week": 1,
+        "day": 2,
+        "timerMinutes": 30,
+        "setsCompleted": 6,
+        "totalReps": 30,
+        "repsPerSet": null,
+        "endedByTimer": 0,
+        "endedManually": 1
+      },
+      "setEvents": [
+        {
+          "setIndex": 1,
+          "completedAt": "2025-02-19T18:30:00.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 1,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 2,
+          "completedAt": "2025-02-19T18:31:05.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 1,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 3,
+          "completedAt": "2025-02-19T18:32:05.000Z",
+          "repsTarget": 7,
+          "ladderCycle": 1,
+          "ladderStep": 3
+        },
+        {
+          "setIndex": 4,
+          "completedAt": "2025-02-19T18:33:11.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 2,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 5,
+          "completedAt": "2025-02-19T18:34:34.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 2,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 6,
+          "completedAt": "2025-02-19T18:35:42.000Z",
+          "repsTarget": 7,
+          "ladderCycle": 2,
+          "ladderStep": 3
+        }
+      ],
+      "notes": "Interrotto per impegno improvviso",
+      "calendarEventId": null,
+      "calendarProvider": null,
+      "_sync": {
+        "updatedAt": "2026-02-27T00:04:09.461Z",
+        "version": 1,
+        "source": "local",
+        "pendingSync": true
+      }
+    },
+    {
+      "id": "1772150649462-7pulwrp",
+      "programId": "prog-the-giant",
+      "startedAt": "2025-02-21T07:30:00.000Z",
+      "endedAt": "2025-02-21T07:46:00.000Z",
+      "status": "completed",
+      "weightKg": 24,
+      "metrics": {
+        "version": 2,
+        "week": 1,
+        "day": 3,
+        "timerMinutes": 30,
+        "setsCompleted": 12,
+        "totalReps": 72,
+        "repsPerSet": null,
+        "endedByTimer": 1,
+        "endedManually": 0
+      },
+      "setEvents": [
+        {
+          "setIndex": 1,
+          "completedAt": "2025-02-21T07:30:00.000Z",
+          "repsTarget": 4,
+          "ladderCycle": 1,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 2,
+          "completedAt": "2025-02-21T07:31:12.000Z",
+          "repsTarget": 6,
+          "ladderCycle": 1,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 3,
+          "completedAt": "2025-02-21T07:32:26.000Z",
+          "repsTarget": 8,
+          "ladderCycle": 1,
+          "ladderStep": 3
+        },
+        {
+          "setIndex": 4,
+          "completedAt": "2025-02-21T07:33:40.000Z",
+          "repsTarget": 4,
+          "ladderCycle": 2,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 5,
+          "completedAt": "2025-02-21T07:34:54.000Z",
+          "repsTarget": 6,
+          "ladderCycle": 2,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 6,
+          "completedAt": "2025-02-21T07:36:13.000Z",
+          "repsTarget": 8,
+          "ladderCycle": 2,
+          "ladderStep": 3
+        },
+        {
+          "setIndex": 7,
+          "completedAt": "2025-02-21T07:37:23.000Z",
+          "repsTarget": 4,
+          "ladderCycle": 3,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 8,
+          "completedAt": "2025-02-21T07:38:42.000Z",
+          "repsTarget": 6,
+          "ladderCycle": 3,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 9,
+          "completedAt": "2025-02-21T07:40:07.000Z",
+          "repsTarget": 8,
+          "ladderCycle": 3,
+          "ladderStep": 3
+        },
+        {
+          "setIndex": 10,
+          "completedAt": "2025-02-21T07:41:32.000Z",
+          "repsTarget": 4,
+          "ladderCycle": 4,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 11,
+          "completedAt": "2025-02-21T07:42:58.000Z",
+          "repsTarget": 6,
+          "ladderCycle": 4,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 12,
+          "completedAt": "2025-02-21T07:44:23.000Z",
+          "repsTarget": 8,
+          "ladderCycle": 4,
+          "ladderStep": 3
+        }
+      ],
+      "notes": null,
+      "calendarEventId": null,
+      "calendarProvider": null,
+      "_sync": {
+        "updatedAt": "2026-02-27T00:04:09.462Z",
+        "version": 1,
+        "source": "local",
+        "pendingSync": true
+      }
+    },
+    {
+      "id": "1772150649462-n02uzpv",
+      "programId": "prog-the-giant",
+      "startedAt": "2025-02-24T07:00:00.000Z",
+      "endedAt": "2025-02-24T07:16:00.000Z",
+      "status": "completed",
+      "weightKg": 24,
+      "metrics": {
+        "version": 2,
+        "week": 2,
+        "day": 1,
+        "timerMinutes": 30,
+        "setsCompleted": 12,
+        "totalReps": 48,
+        "repsPerSet": null,
+        "endedByTimer": 1,
+        "endedManually": 0
+      },
+      "setEvents": [
+        {
+          "setIndex": 1,
+          "completedAt": "2025-02-24T07:00:00.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 1,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 2,
+          "completedAt": "2025-02-24T07:01:08.000Z",
+          "repsTarget": 4,
+          "ladderCycle": 1,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 3,
+          "completedAt": "2025-02-24T07:02:06.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 1,
+          "ladderStep": 3
+        },
+        {
+          "setIndex": 4,
+          "completedAt": "2025-02-24T07:03:07.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 2,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 5,
+          "completedAt": "2025-02-24T07:04:16.000Z",
+          "repsTarget": 4,
+          "ladderCycle": 2,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 6,
+          "completedAt": "2025-02-24T07:05:36.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 2,
+          "ladderStep": 3
+        },
+        {
+          "setIndex": 7,
+          "completedAt": "2025-02-24T07:07:03.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 3,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 8,
+          "completedAt": "2025-02-24T07:08:29.000Z",
+          "repsTarget": 4,
+          "ladderCycle": 3,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 9,
+          "completedAt": "2025-02-24T07:09:46.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 3,
+          "ladderStep": 3
+        },
+        {
+          "setIndex": 10,
+          "completedAt": "2025-02-24T07:11:24.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 4,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 11,
+          "completedAt": "2025-02-24T07:13:02.000Z",
+          "repsTarget": 4,
+          "ladderCycle": 4,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 12,
+          "completedAt": "2025-02-24T07:14:32.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 4,
+          "ladderStep": 3
+        }
+      ],
+      "notes": null,
+      "calendarEventId": null,
+      "calendarProvider": null,
+      "_sync": {
+        "updatedAt": "2026-02-27T00:04:09.462Z",
+        "version": 1,
+        "source": "local",
+        "pendingSync": true
+      }
+    },
+    {
+      "id": "1772150649462-wlyf4lq",
+      "programId": "prog-the-giant",
+      "startedAt": "2025-02-26T18:15:00.000Z",
+      "endedAt": "2025-02-26T18:26:00.000Z",
+      "status": "completed",
+      "weightKg": 20,
+      "metrics": {
+        "version": 2,
+        "week": 2,
+        "day": 2,
+        "timerMinutes": 30,
+        "setsCompleted": 9,
+        "totalReps": 45,
+        "repsPerSet": null,
+        "endedByTimer": 1,
+        "endedManually": 0
+      },
+      "setEvents": [
+        {
+          "setIndex": 1,
+          "completedAt": "2025-02-26T18:15:00.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 1,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 2,
+          "completedAt": "2025-02-26T18:16:09.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 1,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 3,
+          "completedAt": "2025-02-26T18:17:22.000Z",
+          "repsTarget": 7,
+          "ladderCycle": 1,
+          "ladderStep": 3
+        },
+        {
+          "setIndex": 4,
+          "completedAt": "2025-02-26T18:18:25.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 2,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 5,
+          "completedAt": "2025-02-26T18:19:33.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 2,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 6,
+          "completedAt": "2025-02-26T18:20:45.000Z",
+          "repsTarget": 7,
+          "ladderCycle": 2,
+          "ladderStep": 3
+        },
+        {
+          "setIndex": 7,
+          "completedAt": "2025-02-26T18:22:04.000Z",
+          "repsTarget": 3,
+          "ladderCycle": 3,
+          "ladderStep": 1
+        },
+        {
+          "setIndex": 8,
+          "completedAt": "2025-02-26T18:23:20.000Z",
+          "repsTarget": 5,
+          "ladderCycle": 3,
+          "ladderStep": 2
+        },
+        {
+          "setIndex": 9,
+          "completedAt": "2025-02-26T18:24:55.000Z",
+          "repsTarget": 7,
+          "ladderCycle": 3,
+          "ladderStep": 3
+        }
+      ],
+      "notes": "Giorno leggero, 20kg per recupero",
+      "calendarEventId": null,
+      "calendarProvider": null,
+      "_sync": {
+        "updatedAt": "2026-02-27T00:04:09.462Z",
+        "version": 1,
+        "source": "local",
+        "pendingSync": true
+      }
+    }
+  ],
+  "progress": [],
+  "preferences": {
+    "weightUnit": "kg",
+    "updatedAt": "2026-02-27T00:04:09.462Z"
+  }
+}
