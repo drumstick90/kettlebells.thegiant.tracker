@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kettlebell Tracker — Allenamento misurato</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafaf9;
+      --surface: #ffffff;
+      --text: #1c1917;
+      --text-muted: #78716c;
+      --accent: #44403c;
+      --accent-soft: #e7e5e4;
+      --border: #e7e5e4;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+      font-size: 16px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+    header {
+      padding: 32px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--text);
+    }
+    .cta-header {
+      color: var(--text);
+      padding: 10px 20px;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      font-weight: 500;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 0.2s, color 0.2s;
+    }
+    .cta-header:hover {
+      background: var(--accent);
+      color: var(--surface);
+    }
+    .hero { padding: 120px 0 140px; }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    @media (max-width: 768px) {
+      .hero { padding: 80px 0 100px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+    }
+    .hero-content h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.25rem, 4vw, 3.25rem);
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 24px;
+      letter-spacing: -0.01em;
+    }
+    .hero-content p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 40px;
+      max-width: 420px;
+    }
+    .hero .cta {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .btn-primary {
+      background: var(--text);
+      color: var(--surface);
+      padding: 14px 28px;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-secondary {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    .btn-secondary:hover { color: var(--text); }
+    .hero-visual {
+      position: relative;
+    }
+    .mockup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+    }
+    .mockup-card .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .mockup-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      margin-bottom: 24px;
+    }
+    .mockup-stats {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .mockup-stat .value {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .mockup-stat .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .mockup-chart {
+      height: 120px;
+      background: var(--bg);
+      border-radius: 4px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 16px;
+    }
+    .mockup-bar {
+      flex: 1;
+      background: var(--accent-soft);
+      border-radius: 2px;
+      min-height: 20px;
+    }
+    .mockup-bar:nth-child(1) { height: 40%; }
+    .mockup-bar:nth-child(2) { height: 55%; }
+    .mockup-bar:nth-child(3) { height: 70%; }
+    .mockup-bar:nth-child(4) { height: 45%; }
+    .mockup-bar:nth-child(5) { height: 85%; }
+    .mockup-bar:nth-child(6) { height: 60%; }
+    .mockup-bar:nth-child(7) { height: 90%; }
+    .features {
+      padding: 100px 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+    .section-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .features h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      margin-bottom: 56px;
+    }
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+    }
+    @media (max-width: 768px) {
+      .feature-list { grid-template-columns: 1fr; }
+    }
+    .feature-item h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .feature-item p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .feature-item .num {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .programs {
+      padding: 100px 0;
+    }
+    .programs h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      margin-bottom: 16px;
+    }
+    .programs > .container > p {
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      max-width: 500px;
+    }
+    .program-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .program-tag {
+      padding: 10px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    footer {
+      padding: 64px 0;
+      border-top: 1px solid var(--border);
+    }
+    .footer-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+    .footer-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+    }
+    .footer-links {
+      display: flex;
+      gap: 32px;
+    }
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .footer-links a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="container">
+      <div class="logo">Kettlebell Tracker</div>
+      <a href="#download" class="cta-header">Scarica</a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <h1>Allenamento misurato. Progressi visibili.</h1>
+          <p>Traccia The Giant, Simple & Sinister e altri programmi kettlebell. Timer, metriche e grafici senza fronzoli. I dati restano sul tuo dispositivo.</p>
+          <div class="cta">
+            <a href="#download" class="btn-primary">Scarica l'app</a>
+            <a href="#features" class="btn-secondary">Funzionalità →</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="mockup-card">
+            <div class="label">Sessione in corso</div>
+            <h3>The Giant 2.0</h3>
+            <div class="mockup-stats">
+              <div class="mockup-stat">
+                <div class="value">8 serie</div>
+                <div class="label">Completate</div>
+              </div>
+              <div class="mockup-stat">
+                <div class="value">24 kg</div>
+                <div class="label">Peso</div>
+              </div>
+            </div>
+            <div class="mockup-chart">
+              <div class="mockup-bar"></div>
+              <div class="mockup-bar"></div>
+              <div class="mockup-bar"></div>
+              <div class="mockup-bar"></div>
+              <div class="mockup-bar"></div>
+              <div class="mockup-bar"></div>
+              <div class="mockup-bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-label">Funzionalità</div>
+        <h2>Progettato per chi allena con metodo</h2>
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="num">01</div>
+            <h3>Timer da 30 minuti</h3>
+            <p>Il protocollo The Giant richiede 30 minuti. Timer integrato con avvisi per mantenere il ritmo.</p>
+          </div>
+          <div class="feature-item">
+            <div class="num">02</div>
+            <h3>Metriche per sessione</h3>
+            <p>Serie, ripetizioni, ladder step. Ogni sessione viene registrata con precisione per analizzare i progressi.</p>
+          </div>
+          <div class="feature-item">
+            <div class="num">03</div>
+            <h3>Calendario</h3>
+            <p>Integrazione con Apple e Google Calendar per pianificare gli allenamenti e verificare la costanza.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="programs">
+      <div class="container">
+        <div class="section-label">Programmi</div>
+        <h2>Supporto nativo per i protocolli più usati</h2>
+        <p>The Giant, Simple & Sinister, Dry Fighting Weight e altri in arrivo.</p>
+        <div class="program-list">
+          <span class="program-tag">The Giant</span>
+          <span class="program-tag">Simple & Sinister</span>
+          <span class="program-tag">Dry Fighting Weight</span>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-logo">Kettlebell Tracker</div>
+        <div class="footer-links">
+          <a href="#">Privacy</a>
+          <a href="#">Contatti</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

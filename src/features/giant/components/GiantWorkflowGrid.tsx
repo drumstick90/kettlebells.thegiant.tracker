@@ -1,33 +1,52 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppCard } from '../../../ui/primitives/AppCard';
 import { colors, spacing } from '../../../ui/theme/tokens';
 
 interface GiantWorkflowGridProps {
   sessionCount: number;
+  onNavigate: (screen: 'Setup' | 'Progress' | 'Settings') => void;
 }
 
-const CARDS = [
-  { title: 'Configure cycle', text: 'Version, RM, timer, and day sequence.' },
-  { title: 'Run session', text: 'Track sets with autoregulated rest.' },
-  { title: 'Review trends', text: 'Compare set count and total reps.' },
-  { title: 'Prepare sync', text: 'Keep local data migration-ready.' },
-] as const;
+const CARDS: {
+  title: string;
+  text: string;
+  screen: 'Setup' | 'Progress' | 'Settings';
+}[] = [
+  { title: 'Configura ciclo', text: 'Versione, RM, timer e sequenza giorni.', screen: 'Setup' },
+  { title: 'Esegui sessione', text: 'Traccia le serie con riposo autoregolato.', screen: 'Setup' },
+  { title: 'Rivedi trend', text: 'Confronta numero serie e ripetizioni totali.', screen: 'Progress' },
+  { title: 'Prepara sync', text: 'Mantieni i dati locali pronti per la migrazione.', screen: 'Settings' },
+];
 
-export function GiantWorkflowGrid({ sessionCount }: GiantWorkflowGridProps) {
+export function GiantWorkflowGrid({ sessionCount, onNavigate }: GiantWorkflowGridProps) {
+  const reviewHint =
+    sessionCount === 0
+      ? 'Completa la tua prima sessione per sbloccare i trend'
+      : `Hai ${sessionCount} sessioni — vai a Progress per vedere i trend`;
+
   return (
     <View style={styles.wrap}>
       <Text style={styles.kicker}>WORKFLOW</Text>
       <View style={styles.grid}>
         {CARDS.map((card) => (
-          <View key={card.title} style={styles.item}>
+          <Pressable
+            key={card.title}
+            style={styles.item}
+            onPress={() => {
+              if (__DEV__) console.log('[GiantWorkflowGrid] card press', { cardTitle: card.title, sessionCount });
+              onNavigate(card.screen);
+            }}
+          >
             <AppCard>
               <Text style={styles.cardTitle}>{card.title}</Text>
               <Text style={styles.cardText}>{card.text}</Text>
+              {card.screen === 'Progress' && (
+                <Text style={styles.cardHint}>{reviewHint}</Text>
+              )}
             </AppCard>
-          </View>
+          </Pressable>
         ))}
       </View>
-      <Text style={styles.meta}>{sessionCount} local sessions indexed</Text>
     </View>
   );
 }
@@ -64,6 +83,12 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 14,
     lineHeight: 20,
+  },
+  cardHint: {
+    marginTop: spacing.xs,
+    fontSize: 12,
+    color: colors.quiet,
+    fontStyle: 'italic',
   },
   meta: {
     color: colors.quiet,

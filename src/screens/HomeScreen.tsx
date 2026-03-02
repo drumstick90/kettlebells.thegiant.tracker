@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from 'react';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StyleSheet, Text, View } from 'react-native';
 import { GiantCycleSummaryCard } from '../features/giant/components/GiantCycleSummaryCard';
@@ -5,6 +6,7 @@ import { GiantIdentityRow } from '../features/giant/components/GiantIdentityRow'
 import { GiantWorkflowGrid } from '../features/giant/components/GiantWorkflowGrid';
 import { useStorage } from '../context/StorageContext';
 import type { RootStackParamList } from '../navigation/types';
+import { getLatestGiantCycle } from '../utils/sessionMetrics';
 import { AppButton } from '../ui/primitives/AppButton';
 import { AppCard } from '../ui/primitives/AppCard';
 import { ScreenScaffold } from '../ui/primitives/ScreenScaffold';
@@ -12,10 +14,37 @@ import { colors, spacing } from '../ui/theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
+const DEFAULT_CYCLE = { version: '1.0' as const, week: 1 as const, day: 1 as const };
+
 export function HomeScreen({ navigation }: Props) {
   const { db } = useStorage();
   const sessionCount = db?.sessions.length ?? 0;
   const latestSession = db && db.sessions.length > 0 ? db.sessions[db.sessions.length - 1] : undefined;
+
+  if (__DEV__) {
+    console.log('[Home] sessionCount', sessionCount);
+  }
+
+  useEffect(() => {
+    if (__DEV__) {
+      console.log('[Home] Quick links render', { sessionCount });
+    }
+  }, [sessionCount]);
+
+  const cycleProps = useMemo(() => {
+    const sessions = db?.sessions ?? [];
+    const latest = getLatestGiantCycle(sessions);
+    const result = latest ?? DEFAULT_CYCLE;
+    if (__DEV__) {
+      console.log('[Home] GiantCycleSummaryCard', {
+        hasLatestSession: !!latest,
+        version: result.version,
+        week: result.week,
+        day: result.day,
+      });
+    }
+    return result;
+  }, [db?.sessions]);
 
   return (
     <ScreenScaffold>
@@ -23,42 +52,56 @@ export function HomeScreen({ navigation }: Props) {
         <GiantIdentityRow />
       </View>
       <View style={styles.heroWrap}>
-      <AppCard>
-        <Text style={styles.eyebrow}>THE GIANT TRACKER</Text>
-        <Text style={styles.title}>
-          Build your <Text style={styles.titleStrong}>live session flow</Text> and log sets in real time.
-        </Text>
-        <Text style={styles.subtitle}>
-          Mobile workflow: setup, train, review. Local-first data with precise set timestamps.
-        </Text>
-        <View style={styles.ctaRow}>
-          <AppButton onPress={() => navigation.navigate('Setup')}>Start session setup</AppButton>
-          <AppButton variant="ghost" onPress={() => navigation.navigate('History')}>
-            View history
-          </AppButton>
+        <View style={styles.heroCard}>
+        <AppCard>
+          <Text style={styles.eyebrow}>THE GIANT TRACKER</Text>
+          <Text style={styles.title}>
+            Traccia le tue <Text style={styles.titleStrong}>sessioni live</Text> e registra le serie in tempo reale.
+          </Text>
+          <Text style={styles.subtitle}>
+            Setup, allenamento, revisione. Dati local-first con timestamp precisi per ogni serie.
+          </Text>
+          <View style={styles.ctaRow}>
+            <AppButton
+              onPress={() => navigation.navigate('Setup')}
+              style={styles.ctaPrimary}
+            >
+              Avvia setup sessione
+            </AppButton>
+            <AppButton variant="ghost" onPress={() => navigation.navigate('History')}>
+              Cronologia
+            </AppButton>
+          </View>
+        </AppCard>
         </View>
-      </AppCard>
       </View>
 
-      <GiantCycleSummaryCard version="1.0" week={1} day={1} />
-      <GiantWorkflowGrid sessionCount={sessionCount} />
+      <GiantCycleSummaryCard
+        version={cycleProps.version}
+        week={cycleProps.week}
+        day={cycleProps.day}
+      />
+      <GiantWorkflowGrid
+        sessionCount={sessionCount}
+        onNavigate={(screen) => navigation.navigate(screen)}
+      />
 
       <AppCard>
-        <Text style={styles.sectionTitle}>Quick links</Text>
+        <Text style={styles.sectionTitle}>Link rapidi</Text>
+        <View style={styles.quickLinksPrimary}>
+          <AppButton onPress={() => navigation.navigate('Progress')}>Progressi</AppButton>
+        </View>
         <View style={styles.linksRow}>
-          <AppButton variant="pill" onPress={() => navigation.navigate('Progress')}>
-            Progress
+          <AppButton variant="ghost" onPress={() => navigation.navigate('Settings')}>
+            Impostazioni
           </AppButton>
-          <AppButton variant="pill" onPress={() => navigation.navigate('Settings')}>
-            Settings
-          </AppButton>
-          <AppButton variant="pill" onPress={() => navigation.navigate('Credits')}>
-            Credits
+          <AppButton variant="ghost" onPress={() => navigation.navigate('Credits')}>
+            Crediti
           </AppButton>
         </View>
         <Text style={styles.meta}>
-          {sessionCount} local sessions indexed
-          {latestSession ? ` · Last load ${latestSession.weightKg}kg` : ''}
+          {sessionCount} sessioni locali
+          {latestSession ? ` · Ultimo carico ${latestSession.weightKg} kg` : ''}
         </Text>
       </AppCard>
     </ScreenScaffold>
@@ -71,6 +114,11 @@ const styles = StyleSheet.create({
   },
   heroWrap: {
     alignItems: 'center',
+  },
+  heroCard: {
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
   },
   eyebrow: {
     fontSize: 10,
@@ -101,10 +149,12 @@ const styles = StyleSheet.create({
   },
   ctaRow: {
     marginTop: spacing.md,
-    flexDirection: 'row',
-    gap: spacing.xs,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
+    gap: spacing.sm,
+    alignItems: 'stretch',
+  },
+  ctaPrimary: {
+    paddingVertical: spacing.md,
+    minHeight: 52,
   },
   sectionTitle: {
     fontSize: 20,
@@ -112,6 +162,9 @@ const styles = StyleSheet.create({
     color: colors.ink900,
     marginBottom: spacing.sm,
     textAlign: 'center',
+  },
+  quickLinksPrimary: {
+    marginBottom: spacing.xs,
   },
   linksRow: {
     flexDirection: 'row',

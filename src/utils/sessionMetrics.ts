@@ -4,7 +4,45 @@
  * @see docs/CHART_METRICS_BRAINSTORM.md
  */
 
+import type { GiantVersion } from '../domain/giant/types';
 import type { SetTiming, WorkoutSession } from '../schema';
+
+const GIANT_PROGRAM_ID = 'prog-the-giant';
+
+/** metrics.version (number) -> GiantVersion (string) */
+export function versionNumberToGiantVersion(n: number): GiantVersion {
+  if (n === 1) return '1.0';
+  if (n === 1.1) return '1.1';
+  if (n === 1.2) return '1.2';
+  if (n === 2) return '2.0';
+  if (n === 3) return '3.0';
+  return '1.0';
+}
+
+/** Ultima sessione The Giant completata, per derivare version/week/day della card ciclo */
+export function getLatestGiantCycle(sessions: WorkoutSession[]): {
+  version: GiantVersion;
+  week: 1 | 2 | 3 | 4;
+  day: 1 | 2 | 3;
+} | undefined {
+  const giant = sessions
+    .filter(
+      (s) =>
+        s.programId === GIANT_PROGRAM_ID &&
+        s.status === 'completed' &&
+        s.metrics?.version != null
+    )
+    .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())[0];
+  if (!giant) return undefined;
+  const v = giant.metrics?.version ?? 1;
+  const w = (giant.metrics?.week ?? 1) as 1 | 2 | 3 | 4;
+  const d = (giant.metrics?.day ?? 1) as 1 | 2 | 3;
+  return {
+    version: versionNumberToGiantVersion(typeof v === 'number' ? v : 1),
+    week: Math.min(4, Math.max(1, w)) as 1 | 2 | 3 | 4,
+    day: (d >= 1 && d <= 3 ? d : 1) as 1 | 2 | 3,
+  };
+}
 
 export interface DataPoint {
   date: Date;

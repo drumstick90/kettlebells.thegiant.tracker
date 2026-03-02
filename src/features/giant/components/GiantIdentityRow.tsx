@@ -1,5 +1,4 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { AppButton } from '../../../ui/primitives/AppButton';
 import { colors, radius, spacing } from '../../../ui/theme/tokens';
 
 export function GiantIdentityRow() {
@@ -10,14 +9,6 @@ export function GiantIdentityRow() {
           <Text style={styles.brandLetter}>G</Text>
         </View>
         <Text style={styles.brandText}>THE GIANT TRACKER</Text>
-      </View>
-      <View style={styles.links}>
-        <AppButton variant="pill" onPress={() => {}}>
-          FLOW
-        </AppButton>
-        <AppButton variant="pill" onPress={() => {}}>
-          STATS
-        </AppButton>
       </View>
     </View>
   );
@@ -50,9 +41,5 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 1.4,
     fontWeight: '600',
-  },
-  links: {
-    flexDirection: 'row',
-    gap: spacing.xs,
   },
 });

@@ -62,27 +62,29 @@ export function SetupScreen({ navigation, route }: Props) {
   return (
     <ScreenScaffold>
       <View style={styles.heroWrap}>
-      <AppCard>
-        <Text style={[styles.eyebrow, { color: colors.quiet }]}>SESSION SETUP</Text>
-        <Text style={[styles.title, { color: colors.ink800 }]}>Configure The Giant live workout.</Text>
-        <Text style={[styles.subtitle, { color: colors.muted }]}>Pick cycle details and move straight into the training screen.</Text>
-      </AppCard>
+        <View style={styles.heroCard}>
+          <AppCard>
+            <Text style={[styles.eyebrow, { color: colors.quiet }]}>SETUP SESSIONE</Text>
+            <Text style={[styles.title, { color: colors.ink800 }]}>Configura la sessione live di The Giant.</Text>
+            <Text style={[styles.subtitle, { color: colors.muted }]}>Scegli versione, settimana, giorno e carico, poi passa direttamente all'allenamento.</Text>
+          </AppCard>
+        </View>
       </View>
 
       <AppCard>
-        <Text style={[styles.label, { color: colors.quiet }]}>VERSION</Text>
+        <Text style={[styles.label, { color: colors.quiet }]}>VERSIONE</Text>
         <OptionRow options={VERSIONS} value={version} onChange={setVersion} colors={colors} />
 
-        <Text style={[styles.label, { color: colors.quiet }]}>WEEK</Text>
+        <Text style={[styles.label, { color: colors.quiet }]}>SETTIMANA</Text>
         <OptionRow options={WEEKS} value={week} onChange={setWeek} colors={colors} />
 
-        <Text style={[styles.label, { color: colors.quiet }]}>DAY</Text>
+        <Text style={[styles.label, { color: colors.quiet }]}>GIORNO</Text>
         <OptionRow options={DAYS} value={day} onChange={setDay} colors={colors} />
 
         <Text style={[styles.label, { color: colors.quiet }]}>TIMER</Text>
         <OptionRow options={TIMERS} value={timerMinutes} onChange={setTimerMinutes} formatter={(v) => `${v} min`} colors={colors} />
 
-        <Text style={[styles.label, { color: colors.quiet }]}>LOAD (KG)</Text>
+        <Text style={[styles.label, { color: colors.quiet }]}>CARICO (KG)</Text>
         <View style={[styles.wheelWrap, { borderColor: colors.surfaceBase, backgroundColor: colors.surfaceBase }]}>
           <FlatList
             ref={weightListRef}
@@ -139,13 +141,13 @@ export function SetupScreen({ navigation, route }: Props) {
       </AppCard>
 
       <View style={styles.previewWrap}>
-      <AppCard inverse>
-        <Text style={styles.previewKicker}>TODAY PLAN</Text>
-        <Text style={styles.previewTitle}>The Giant {version}</Text>
-        <Text style={styles.previewText}>
-          Week {week} · Day {day} · {plan.label} · {timerMinutes} min
-        </Text>
-      </AppCard>
+        <AppCard inverse>
+          <Text style={styles.previewKicker}>PIANO OGGI</Text>
+          <Text style={styles.previewTitle}>The Giant {version}</Text>
+          <Text style={styles.previewText}>
+            Sett. {week} · Giorno {day} · {plan.label} · {timerMinutes} min
+          </Text>
+        </AppCard>
       </View>
 
       <View style={styles.actions}>
@@ -164,7 +166,7 @@ export function SetupScreen({ navigation, route }: Props) {
           accessibilityLabel="Avvia sessione live"
           accessibilityHint="Apre la schermata di allenamento con timer"
         >
-          Start live workout
+          Avvia sessione live
         </AppButton>
         <AppButton
           variant="ghost"
@@ -172,7 +174,7 @@ export function SetupScreen({ navigation, route }: Props) {
           accessibilityLabel="Indietro"
           accessibilityHint="Torna alla schermata precedente"
         >
-          Back
+          Indietro
         </AppButton>
       </View>
     </ScreenScaffold>
@@ -225,6 +227,11 @@ function OptionRow<T extends string | number>({ options, value, onChange, format
 const styles = StyleSheet.create({
   heroWrap: {
     alignItems: 'center',
+  },
+  heroCard: {
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
   },
   previewWrap: {
     alignItems: 'center',

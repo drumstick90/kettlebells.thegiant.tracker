@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { StyleProp, ViewStyle } from 'react-native';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { radius, spacing } from '../theme/tokens';
@@ -7,11 +8,12 @@ interface AppButtonProps {
   children: ReactNode;
   onPress: () => void;
   variant?: 'primary' | 'ghost' | 'pill';
+  style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
   accessibilityHint?: string;
 }
 
-export function AppButton({ children, onPress, variant = 'primary', accessibilityLabel, accessibilityHint }: AppButtonProps) {
+export function AppButton({ children, onPress, variant = 'primary', style, accessibilityLabel, accessibilityHint }: AppButtonProps) {
   const colors = useTheme();
   const isGhost = variant === 'ghost';
   const isPill = variant === 'pill';
@@ -27,7 +29,7 @@ export function AppButton({ children, onPress, variant = 'primary', accessibilit
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
-      style={({ pressed }) => [styles.base, variantStyle, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.base, variantStyle, pressed && styles.pressed, style]}
     >
       <Text
         style={[
