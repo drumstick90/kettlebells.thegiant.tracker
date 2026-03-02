@@ -28,4 +28,5 @@ export type RootStackParamList = {
   Progress: undefined;
   Settings: undefined;
   Credits: undefined;
+  VictoryTest: undefined;
 };

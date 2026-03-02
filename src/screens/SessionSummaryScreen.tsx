@@ -1,6 +1,13 @@
+import { useMemo } from 'react';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StyleSheet, Text, View } from 'react-native';
 import type { RootStackParamList } from '../navigation/types';
+import { useStorage } from '../context/StorageContext';
+import {
+  densityMetrics,
+  deltaPercent,
+  getPreviousSessionOfSameType,
+} from '../utils/sessionMetrics';
 import { AppButton } from '../ui/primitives/AppButton';
 import { AppCard } from '../ui/primitives/AppCard';
 import { ScreenScaffold } from '../ui/primitives/ScreenScaffold';
@@ -9,12 +16,44 @@ import { colors, spacing } from '../ui/theme/tokens';
 type Props = NativeStackScreenProps<RootStackParamList, 'SessionSummary'>;
 
 export function SessionSummaryScreen({ navigation, route }: Props) {
+  const { db } = useStorage();
   const { config, events, endedBy, totalReps, sessionId, startedAt, endedAt } = route.params;
-  const minutesTrained = Math.max(0, (new Date(endedAt).getTime() - new Date(startedAt).getTime()) / 60000);
-  const density = minutesTrained > 0 ? events.length / minutesTrained : 0;
+
+  const { densityReps, densitySets, deltaReps, deltaSets } = useMemo(() => {
+    const current = densityMetrics({
+      startedAt,
+      endedAt,
+      metrics: { totalReps, setsCompleted: events.length },
+    });
+    const sessions = db?.sessions ?? [];
+    const prev = getPreviousSessionOfSameType(sessions, config.version, startedAt);
+    if (!prev || !prev.endedAt) {
+      return {
+        densityReps: current.repsPerMin,
+        densitySets: current.setsPerMin,
+        deltaReps: null as number | null,
+        deltaSets: null as number | null,
+      };
+    }
+    const prevDensity = densityMetrics({
+      startedAt: prev.startedAt,
+      endedAt: prev.endedAt,
+      metrics: {
+        totalReps: prev.metrics?.totalReps ?? 0,
+        setsCompleted: prev.metrics?.setsCompleted ?? 0,
+      },
+    });
+    return {
+      densityReps: current.repsPerMin,
+      densitySets: current.setsPerMin,
+      deltaReps: deltaPercent(current.repsPerMin, prevDensity.repsPerMin),
+      deltaSets: deltaPercent(current.setsPerMin, prevDensity.setsPerMin),
+    };
+  }, [config.version, db?.sessions, endedAt, events.length, startedAt, totalReps]);
 
   return (
     <ScreenScaffold>
+      <View style={styles.heroWrap}>
       <AppCard>
         <Text style={styles.eyebrow}>SESSION COMPLETE</Text>
         <Text style={styles.title}>The Giant {config.version}</Text>
@@ -22,15 +61,23 @@ export function SessionSummaryScreen({ navigation, route }: Props) {
           Week {config.week} · Day {config.day} · {endedBy === 'timer' ? 'Timer finished' : 'Manual stop'}
         </Text>
       </AppCard>
+      </View>
 
       <AppCard inverse>
         <View style={styles.statRow}>
           <Stat label="Sets" value={String(events.length)} />
           <Stat label="Total reps" value={String(totalReps)} />
+          <Stat label="Load" value={`${config.weightKg}kg`} />
         </View>
         <View style={styles.statRow}>
-          <Stat label="Density" value={`${density.toFixed(2)} set/min`} />
-          <Stat label="Load" value={`${config.weightKg}kg`} />
+          <Stat
+            label="Reps/min"
+            value={formatDensityValue(densityReps, deltaReps)}
+          />
+          <Stat
+            label="Sets/min"
+            value={formatDensityValue(densitySets, deltaSets)}
+          />
         </View>
       </AppCard>
 
@@ -51,9 +98,11 @@ export function SessionSummaryScreen({ navigation, route }: Props) {
         )}
       </AppCard>
 
+      <View style={styles.metaWrap}>
       <AppCard>
         <Text style={styles.meta}>Session id: {sessionId}</Text>
       </AppCard>
+      </View>
 
       <View style={styles.actions}>
         <AppButton onPress={() => navigation.navigate('History')}>Go to history</AppButton>
@@ -68,6 +117,13 @@ export function SessionSummaryScreen({ navigation, route }: Props) {
   );
 }
 
+function formatDensityValue(value: number, delta: number | null): string {
+  const formatted = value.toFixed(2);
+  if (delta === null) return formatted;
+  const sign = delta >= 0 ? '+' : '';
+  return `${formatted} (${sign}${delta}% vs prev)`;
+}
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.statBox}>
@@ -78,27 +134,37 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
+  heroWrap: {
+    alignItems: 'center',
+  },
+  metaWrap: {
+    alignItems: 'center',
+  },
   eyebrow: {
     fontSize: 10,
     color: colors.quiet,
     letterSpacing: 1.5,
     fontWeight: '600',
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   title: {
     fontSize: 30,
     color: colors.ink900,
     fontWeight: '300',
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   subtitle: {
     color: colors.muted,
     fontSize: 14,
+    textAlign: 'center',
   },
   statRow: {
     flexDirection: 'row',
     gap: spacing.sm,
     marginBottom: spacing.sm,
+    justifyContent: 'center',
   },
   statBox: {
     flex: 1,
@@ -123,6 +189,7 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     color: colors.ink900,
     marginBottom: spacing.sm,
+    textAlign: 'center',
   },
   row: {
     flexDirection: 'row',
@@ -145,13 +212,16 @@ const styles = StyleSheet.create({
   empty: {
     fontSize: 14,
     color: colors.quiet,
+    textAlign: 'center',
   },
   meta: {
     fontSize: 12,
     color: colors.quiet,
+    textAlign: 'center',
   },
   actions: {
     gap: spacing.xs,
     marginBottom: spacing.md,
+    alignItems: 'center',
   },
 });

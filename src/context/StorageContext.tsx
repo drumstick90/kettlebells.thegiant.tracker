@@ -1,12 +1,13 @@
 /**
  * Context per accesso al database locale
- * Fornisce db, setDb e operazioni di persistenza
+ * Fornisce db, setDb e operazioni di persistenza.
+ * Richiede un profilo attivo (pier, luigi, test).
  */
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { LocalDatabase } from '../schema';
-import { loadOrCreateDb } from '../storage/localAdapter';
-import { localAdapter } from '../storage/localAdapter';
+import type { ProfileId } from '../storage/profiles';
+import { createLocalAdapter, loadOrCreateDb } from '../storage/localAdapter';
 
 interface StorageContextValue {
   db: LocalDatabase | null;
@@ -18,23 +19,29 @@ interface StorageContextValue {
 
 const StorageContext = createContext<StorageContextValue | null>(null);
 
-export function StorageProvider({ children }: { children: React.ReactNode }) {
+interface StorageProviderProps {
+  children: React.ReactNode;
+  profile: ProfileId;
+}
+
+export function StorageProvider({ children, profile }: StorageProviderProps) {
   const [db, setDb] = useState<LocalDatabase | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const refresh = async () => {
     setIsLoading(true);
-    const data = await loadOrCreateDb();
+    const data = await loadOrCreateDb(profile);
     setDb(data);
     setIsLoading(false);
   };
 
   useEffect(() => {
     refresh();
-  }, []);
+  }, [profile]);
 
   const persist = async (data: LocalDatabase) => {
-    await localAdapter.write(data);
+    const adapter = createLocalAdapter(profile);
+    await adapter.write(data);
     setDb(data);
   };
 

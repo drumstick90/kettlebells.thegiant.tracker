@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Dimensions, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
+import * as Haptics from 'expo-haptics';
 import { useKeepAwake } from 'expo-keep-awake';
 import { useStorage } from '../context/StorageContext';
 import { getGiantDayPlan, getRmType } from '../domain/giant/rules';
@@ -32,6 +33,8 @@ export function LiveWorkoutScreen({ navigation, route }: Props) {
   const startedAtMsRef = useRef(Date.now());
   const startedAtIsoRef = useRef(new Date(startedAtMsRef.current).toISOString());
   const finishingRef = useRef(false);
+  const flashOpacity = useRef(new Animated.Value(0)).current;
+  const [showFlash, setShowFlash] = useState(false);
 
   useEffect(() => {
     eventsRef.current = events;
@@ -113,11 +116,31 @@ export function LiveWorkoutScreen({ navigation, route }: Props) {
     setIsPaused(true);
   };
 
+  const triggerFlash = useCallback(() => {
+    setShowFlash(true);
+    flashOpacity.setValue(0);
+    Animated.sequence([
+      Animated.timing(flashOpacity, {
+        toValue: 1,
+        duration: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(flashOpacity, {
+        toValue: 0,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+    ]).start(({ finished }) => {
+      if (finished) setShowFlash(false);
+    });
+  }, [flashOpacity]);
+
   const handleLogSet = () => {
     if (isCompleteDisabled) {
       return;
     }
-
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    triggerFlash();
     setEvents((current) => appendSetEvent(current, plan, elapsedDeciseconds));
   };
 
@@ -125,8 +148,24 @@ export function LiveWorkoutScreen({ navigation, route }: Props) {
     setEvents((current) => undoLastSetEvent(current));
   };
 
+  const { width, height } = Dimensions.get('window');
+
   return (
     <ScreenScaffold>
+      <Modal visible={showFlash} transparent animationType="none" statusBarTranslucent>
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.flashOverlay,
+            {
+              width,
+              height,
+              opacity: flashOpacity,
+            },
+          ]}
+        />
+      </Modal>
+      <View style={styles.heroWrap}>
       <AppCard>
         <Text style={styles.eyebrow}>LIVE WORKOUT</Text>
         <Text style={styles.liveTitle}>
@@ -136,6 +175,7 @@ export function LiveWorkoutScreen({ navigation, route }: Props) {
           {plan.label} · {rmType} · {config.weightKg}kg · {config.timerMinutes} min
         </Text>
       </AppCard>
+      </View>
 
       <AppCard>
         <View style={styles.timerWrap}>
@@ -147,6 +187,7 @@ export function LiveWorkoutScreen({ navigation, route }: Props) {
         </View>
       </AppCard>
 
+      <View style={styles.targetWrap}>
       <AppCard>
         <Text style={styles.kicker}>NEXT TARGET</Text>
         <Text style={styles.targetText}>
@@ -156,23 +197,43 @@ export function LiveWorkoutScreen({ navigation, route }: Props) {
         <Text style={styles.meta}>Sets completed: {events.length}</Text>
         <Text style={styles.meta}>Last set timestamp: {lastEventLabel}</Text>
       </AppCard>
+      </View>
 
       <Pressable
         onPress={handleLogSet}
         disabled={isCompleteDisabled}
         style={[styles.logButton, isCompleteDisabled && styles.logButtonDisabled]}
+        accessibilityRole="button"
+        accessibilityLabel="Serie completata"
+        accessibilityHint={isCompleteDisabled ? 'Timer in pausa o scaduto' : 'Registra il completamento della serie'}
       >
         <Text style={styles.logButtonText}>Serie completata</Text>
       </Pressable>
 
       <View style={styles.actionRow}>
-        <AppButton variant="ghost" onPress={handleUndo}>
+        <AppButton
+          variant="ghost"
+          onPress={handleUndo}
+          accessibilityLabel="Undo ultimo set"
+          accessibilityHint="Annulla l'ultima serie registrata"
+        >
           Undo ultimo
         </AppButton>
-        <AppButton variant="ghost" onPress={handlePauseToggle}>
+        <AppButton
+          variant="ghost"
+          onPress={handlePauseToggle}
+          accessibilityLabel={isPaused ? 'Riprendi timer' : 'Metti in pausa'}
+          accessibilityHint={isPaused ? 'Riprende il countdown' : 'Mette in pausa il timer'}
+        >
           {isPaused ? 'Resume' : 'Pause'}
         </AppButton>
-        <AppButton onPress={() => void finalizeSession('manual', eventsRef.current)}>Termina</AppButton>
+        <AppButton
+          onPress={() => void finalizeSession('manual', eventsRef.current)}
+          accessibilityLabel="Termina sessione"
+          accessibilityHint="Chiude la sessione e salva i dati"
+        >
+          Termina
+        </AppButton>
       </View>
     </ScreenScaffold>
   );
@@ -220,22 +281,38 @@ function formatCountdown(totalDeciseconds: number): string {
 }
 
 const styles = StyleSheet.create({
+  flashOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    backgroundColor: 'rgba(220,255,220,0.9)',
+    zIndex: 9999,
+  },
+  heroWrap: {
+    alignItems: 'center',
+  },
+  targetWrap: {
+    alignItems: 'center',
+  },
   eyebrow: {
     fontSize: 10,
     color: colors.quiet,
     letterSpacing: 1.5,
     fontWeight: '600',
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   liveTitle: {
     fontSize: 24,
     color: colors.ink900,
     fontWeight: '300',
+    textAlign: 'center',
   },
   liveSub: {
     marginTop: spacing.xs,
     color: colors.muted,
     fontSize: 14,
+    textAlign: 'center',
   },
   timerWrap: {
     alignItems: 'center',
@@ -266,17 +343,20 @@ const styles = StyleSheet.create({
     letterSpacing: 1.3,
     fontWeight: '600',
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   targetText: {
     fontSize: 25,
     color: colors.ink900,
     fontWeight: '300',
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   meta: {
     color: colors.muted,
     fontSize: 13,
     marginTop: spacing.xxs,
+    textAlign: 'center',
   },
   logButton: {
     borderWidth: 1,
@@ -301,5 +381,6 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     flexWrap: 'wrap',
     marginBottom: spacing.md,
+    justifyContent: 'center',
   },
 });

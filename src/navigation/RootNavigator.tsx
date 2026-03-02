@@ -8,24 +8,27 @@ import { HistoryScreen } from '../screens/HistoryScreen';
 import { ProgressScreen } from '../screens/ProgressScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { CreditsScreen } from '../screens/CreditsScreen';
+import { VictoryTestScreen } from '../screens/VictoryTestScreen';
 import type { RootStackParamList } from './types';
-import { colors } from '../ui/theme/tokens';
+import { useTheme } from '../context/ThemeContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const navTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: colors.surfaceSoft,
-    card: colors.surfaceBase,
-    text: colors.ink800,
-    border: colors.borderSoft,
-    primary: colors.ink800,
-  },
-};
-
 export function RootNavigator() {
+  const colors = useTheme();
+
+  const navTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      background: colors.surfaceSoft,
+      card: colors.surfaceBase,
+      text: colors.ink800,
+      border: colors.borderSoft,
+      primary: colors.ink800,
+    },
+  };
+
   return (
     <NavigationContainer theme={navTheme}>
       <Stack.Navigator
@@ -34,7 +37,7 @@ export function RootNavigator() {
           headerStyle: { backgroundColor: colors.surfaceBase },
           headerTintColor: colors.ink800,
           headerTitleStyle: { fontWeight: '500' },
-          contentStyle: { backgroundColor: colors.surfaceSoft },
+          contentStyle: { backgroundColor: colors.surfaceSoft } as const,
         }}
       >
         <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'The Giant' }} />
@@ -45,6 +48,7 @@ export function RootNavigator() {
         <Stack.Screen name="Progress" component={ProgressScreen} options={{ title: 'Progress' }} />
         <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
         <Stack.Screen name="Credits" component={CreditsScreen} options={{ title: 'Credits' }} />
+        <Stack.Screen name="VictoryTest" component={VictoryTestScreen} options={{ title: 'Victory Test' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

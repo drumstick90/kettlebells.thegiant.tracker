@@ -41,7 +41,8 @@ export function GiantCycleSummaryCard({ version, day, week }: GiantCycleSummaryC
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    gap: spacing.lg,
     marginBottom: spacing.sm,
     zIndex: 2,
   },
@@ -57,11 +58,13 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     marginBottom: spacing.xs,
     zIndex: 2,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 15,
     color: '#e6e6e6',
     zIndex: 2,
+    textAlign: 'center',
   },
   statsRow: {
     marginTop: spacing.md,

@@ -4,13 +4,140 @@ Documento operativo per decidere cosa mostrare in app con il massimo rapporto va
 
 ---
 
+## Pipeline: JSON → Derivazione → Rendering
+
+Tre step distinti per massima modularita e controllo.
+
+| Step | Responsabilita | Output |
+|------|----------------|--------|
+| **1. JSON** | Solo dati persisteni in `sessions` | WorkoutSession[] |
+| **2. Derivazione** | Calcola metriche di dominio da sessions | `{ date, value }[]`, aggregati numerici |
+| **3. Rendering** | Formatta (label, colori), adatta al chart, renderizza | Chart, KPI, insight |
+
+**Regole**:
+- Step 2 restituisce solo dati di dominio (numeri, Date). Nessuna formattazione (es. "3 Jan").
+- Step 3 converte in formato chart (label, colori) e passa ai componenti.
+- I chart non conoscono `WorkoutSession`; ricevono dati di dominio o gia formattati.
+
+---
+
 ## Dati disponibili
 
 - **WorkoutSession**: `status`, `startedAt`, `endedAt`, `weightKg`, `metrics`, `setEvents`
 - **ProgressSnapshot**: cache opzionale per schermate pesanti (`metricKey`, `value`, `auxValue`)
 - **ProgramTemplate**: metadati programma (tipo, nome, struttura)
+- **Timer sessione**: `metrics.timerMinutes` — The Giant usa 20 o 30 min (scelta utente). La durata effettiva e `endedAt - startedAt`.
 
 > Regola: i grafici leggono prima da `sessions`; `progress` e solo acceleratore.
+
+---
+
+## Step 1: Cosa va nel JSON (persistito)
+
+Solo dati che non si possono ricostruire. Niente ridondanza.
+
+### WorkoutSession (campi root)
+
+| Campo | JSON | Note |
+|-------|------|------|
+| id, programId, status | si | |
+| startedAt, endedAt | si | endedAt null se in_progress |
+| weightKg | si | |
+| setEvents | si | [] se non live |
+| notes, calendarEventId, calendarProvider | si | |
+| _sync | si | |
+
+### metrics (dentro WorkoutSession)
+
+| Campo | JSON | Note |
+|-------|------|------|
+| setsCompleted | si | Canonico; = setEvents.length quando live |
+| totalReps | si | Canonico; necessario se setEvents=[] |
+| repsPerSet | si | Solo fixed (1.x, 3.x); null per ladder |
+| week, day | si | Opzionale, per cicli |
+| timerMinutes | si | 20 o 30, scelta utente |
+| programVersion | si | es. "1.0", "2.0", "3.0" |
+| endedReason | si | timer \| manual \| interrupted |
+| failurePointRep | si (futuro) | Rep in cui inizia cedimento; per TPC |
+| extra | si | Estensioni namespaced (tg.*, ss.*) |
+
+### ProgressSnapshot (cache opzionale)
+
+Rigenerabile da sessions. Non fonte primaria. Contiene output di step 2 (metricKey: sets_total, reps_total, volume_load, density_reps, rest_avg) per accelerare schermate pesanti.
+
+---
+
+## Step 2: Metriche derivate (mai in JSON)
+
+Calcolate a runtime da sessions. Output: dati di dominio (`{ date, value }`, numeri). Nessuna formattazione UI.
+
+### Per sessione (derivate inline nelle funzioni serie)
+
+| Metrica | Formula | Input |
+|---------|---------|-------|
+| durationMin | `(endedAt - startedAt) / 60000` | startedAt, endedAt |
+| volumeLoad | `totalReps × weightKg` | metrics, weightKg |
+| volumeLoadPerMin | `volumeLoad / durationMin` | derivato |
+| densityRepsPerMin | `totalReps / durationMin` | metrics, durationMin |
+| densitySetsPerMin | `setsCompleted / durationMin` | metrics, durationMin |
+| repsPreCedimento | `failurePointRep - 1` | metrics.failurePointRep |
+| tonnellaggioPreCedimento | `repsPreCedimento × weightKg` | derivato, weightKg |
+| restAvg, restMedian, restMin, restMax, restStd | da setEvents | setEvents |
+| restPerSet | diff(completedAt) | setEvents |
+
+### Aggregati (su insieme sessioni)
+
+Restituiti da `aggregates(sessions)`. Output: oggetto con numeri.
+
+| Metrica | Formula | Input |
+|---------|---------|-------|
+| sessionsCompleted | count(status=completed) | sessions |
+| totalReps (aggregato) | sum(totalReps) | sessions |
+| totalSets (aggregato) | sum(setsCompleted) | sessions |
+| volumeLoad (aggregato) | sum(volumeLoad per sessione) | derivato |
+| bestReps | max(totalReps) | sessions |
+| bestSets | max(setsCompleted) | sessions |
+| streak | giorni/sessioni consecutive | sessions |
+| abortedRate | count(aborted) / count(tutte) | sessions |
+
+### The Giant specifiche (da setEvents)
+
+| Metrica | Formula | Input |
+|---------|---------|-------|
+| ladderCompletate | floor(setsCompleted / ladderLen) | metrics, programVersion |
+| ladderParziali | setsCompleted % ladderLen | idem |
+| tempoPerLadder | media(tempo blocco) | setEvents |
+| restIntraLadder, restInterLadder | media rest per step | setEvents |
+
+---
+
+## Step 3: Rendering
+
+- Formattazione label (es. `date → "3 Jan"`) avviene qui, non in step 2.
+- Adapter: dati di dominio → formato richiesto dalla libreria chart.
+- I chart possono avere logica di presentazione (maxValue, noOfSections) ma non dipendono da `WorkoutSession`.
+
+---
+
+## Architettura modularita (step 2)
+
+Un solo file `utils/sessionMetrics.ts` con funzioni pure e focalizzate. Niente modulo `metrics/` articolato.
+
+| Funzione | Input | Output | Note |
+|----------|-------|--------|------|
+| `repsOverTime(sessions, opts)` | sessions, { limit } | `{ date: Date, value: number }[]` | Una funzione = una metrica |
+| `volumeOverTime(sessions, opts)` | idem | idem | |
+| `densityOverTime(sessions, opts)` | idem | idem | |
+| `aggregates(sessions)` | sessions | `{ totalReps, bestReps, streak, ... }` | KPI |
+| `restPerSet(session)` | singola session | `{ setIndex, restSec }[]` | Solo se setEvents.length > 1 |
+
+Output serie: `date` e `value` (dominio). Step 3 converte `date` in label (es. "3 Jan") per la libreria chart.
+
+**No** `deriveChartData(sessions, metricKey)` — switch centrale fragile. Preferire funzioni specifiche.
+
+**No** `deriveSession` come concetto first-class — la derivazione per-sessione avviene inline dentro le funzioni che costruiscono le serie.
+
+**Hook opzionale**: `useDerivedMetrics(sessions, options)` — orchestrazione (filtri, limiti), chiama le funzioni, restituisce dati alla screen. La logica resta nelle funzioni pure.
 
 ---
 
@@ -29,6 +156,21 @@ Documento operativo per decidere cosa mostrare in app con il massimo rapporto va
 
 ---
 
+## 1.1) Tonnellaggio (tipi)
+
+Le sessioni possono essere 20 o 30 min (The Giant: `timerMinutes`). Le metriche tempo-dipendenti usano `durationMin = (endedAt - startedAt) / 60000` per normalizzare.
+
+| Tipo | Formula | Abbiamo | Uso |
+|------|---------|---------|-----|
+| **Tonnellaggio totale** | `totalReps × weightKg` | si | Carico esterno totale |
+| **Tonnellaggio pre-cedimento (TPC)** | `repsPreCedimento × weightKg` | no (richiede `failurePointRep`) | Carico di qualita |
+| **Tonnellaggio per set** | `repsTarget × weightKg` per set | derivabile da `setEvents` | Analisi intra-sessione (ladder) |
+| **Volume load / min** | `(totalReps × weightKg) / durationMin` | no | kg/min — confronta sessioni 20' vs 30' |
+
+> Volume load/min normalizza per durata effettiva: utile quando si mescolano sessioni da 20 e 30 min.
+
+---
+
 ## 2) Matrice metrica -> tipo grafico (precisa)
 
 | Metrica | Tipo grafico primario | Tipo secondario | Granularita | Note visuali |
@@ -44,6 +186,7 @@ Documento operativo per decidere cosa mostrare in app con il massimo rapporto va
 | **Durata sessione** | Line chart | Box plot mensile | session/day | usare solo `status=completed` |
 | **Densita reps/min** | Line chart | Bar chart per settimana | session/week | metrica efficienza canonica |
 | **Densita sets/min** | Line chart | Bar chart per settimana | session/week | metrica operativa secondaria |
+| **Volume load / min** | Line chart | KPI card | session/day | kg/min — confronta 20' vs 30' |
 | **Rest medio** | Line chart | KPI card | session/day | solo se `setEvents.length > 1` |
 | **Rest mediano** | Line chart | Box plot | session/week | utile per robustezza outlier |
 | **Rest min/max** | Range band chart | Error bar chart | session | banda min-max con linea media |
@@ -71,6 +214,7 @@ Documento operativo per decidere cosa mostrare in app con il massimo rapporto va
 | **Durata sessione** | line | data | minuti | `endedAt-startedAt` |
 | **Densita reps/min** | line | data | reps/min | `totalReps / durationMin` |
 | **Densita sets/min** | line | data | sets/min | `setsCompleted / durationMin` |
+| **Volume load / min** | line | data | kg/min | `(totalReps × weightKg) / durationMin` — confronta 20' vs 30' |
 
 ### 3.3 Recupero e ritmo (`setEvents.length > 1`)
 

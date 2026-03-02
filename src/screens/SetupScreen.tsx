@@ -7,7 +7,9 @@ import type { RootStackParamList } from '../navigation/types';
 import { AppButton } from '../ui/primitives/AppButton';
 import { AppCard } from '../ui/primitives/AppCard';
 import { ScreenScaffold } from '../ui/primitives/ScreenScaffold';
-import { colors, spacing } from '../ui/theme/tokens';
+import { useTheme } from '../context/ThemeContext';
+import type { ColorPalette } from '../ui/theme/colors';
+import { spacing } from '../ui/theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Setup'>;
 
@@ -21,6 +23,7 @@ const WEIGHT_ITEM_HEIGHT = 36;
 const WEIGHT_VISIBLE_ROWS = 5;
 
 export function SetupScreen({ navigation, route }: Props) {
+  const colors = useTheme();
   const prefill = route.params?.prefill;
   const [version, setVersion] = useState<GiantVersion>(prefill?.version ?? '1.0');
   const [week, setWeek] = useState<1 | 2 | 3 | 4>(prefill?.week ?? 1);
@@ -33,7 +36,6 @@ export function SetupScreen({ navigation, route }: Props) {
     []
   );
   const weightListRef = useRef<FlatList<number>>(null);
-
   const plan = useMemo(() => getGiantDayPlan(version, day), [day, version]);
 
   useEffect(() => {
@@ -41,7 +43,6 @@ export function SetupScreen({ navigation, route }: Props) {
     const timeout = setTimeout(() => {
       weightListRef.current?.scrollToIndex({ index: initialIndex, animated: false });
     }, 0);
-
     return () => clearTimeout(timeout);
   }, [weightOptions.length]);
 
@@ -49,41 +50,40 @@ export function SetupScreen({ navigation, route }: Props) {
     const rawIndex = Math.round(offsetY / WEIGHT_ITEM_HEIGHT);
     const clampedIndex = Math.max(0, Math.min(weightOptions.length - 1, rawIndex));
     const nextWeight = weightOptions[clampedIndex];
-    if (nextWeight !== weightKg) {
-      setWeightKg(nextWeight);
-    }
+    if (nextWeight !== weightKg) setWeightKg(nextWeight);
   };
 
   const handleWheelTouchStart = (touchY: number) => {
     const centerStart = WEIGHT_ITEM_HEIGHT * ((WEIGHT_VISIBLE_ROWS - 1) / 2);
     const centerEnd = centerStart + WEIGHT_ITEM_HEIGHT;
-    const startsInCenterRow = touchY >= centerStart && touchY <= centerEnd;
-    setIsWheelScrollEnabled(startsInCenterRow);
+    setIsWheelScrollEnabled(touchY >= centerStart && touchY <= centerEnd);
   };
 
   return (
     <ScreenScaffold>
+      <View style={styles.heroWrap}>
       <AppCard>
-        <Text style={styles.eyebrow}>SESSION SETUP</Text>
-        <Text style={styles.title}>Configure The Giant live workout.</Text>
-        <Text style={styles.subtitle}>Pick cycle details and move straight into the training screen.</Text>
+        <Text style={[styles.eyebrow, { color: colors.quiet }]}>SESSION SETUP</Text>
+        <Text style={[styles.title, { color: colors.ink800 }]}>Configure The Giant live workout.</Text>
+        <Text style={[styles.subtitle, { color: colors.muted }]}>Pick cycle details and move straight into the training screen.</Text>
       </AppCard>
+      </View>
 
       <AppCard>
-        <Text style={styles.label}>VERSION</Text>
-        <OptionRow options={VERSIONS} value={version} onChange={setVersion} />
+        <Text style={[styles.label, { color: colors.quiet }]}>VERSION</Text>
+        <OptionRow options={VERSIONS} value={version} onChange={setVersion} colors={colors} />
 
-        <Text style={styles.label}>WEEK</Text>
-        <OptionRow options={WEEKS} value={week} onChange={setWeek} />
+        <Text style={[styles.label, { color: colors.quiet }]}>WEEK</Text>
+        <OptionRow options={WEEKS} value={week} onChange={setWeek} colors={colors} />
 
-        <Text style={styles.label}>DAY</Text>
-        <OptionRow options={DAYS} value={day} onChange={setDay} />
+        <Text style={[styles.label, { color: colors.quiet }]}>DAY</Text>
+        <OptionRow options={DAYS} value={day} onChange={setDay} colors={colors} />
 
-        <Text style={styles.label}>TIMER</Text>
-        <OptionRow options={TIMERS} value={timerMinutes} onChange={setTimerMinutes} formatter={(v) => `${v} min`} />
+        <Text style={[styles.label, { color: colors.quiet }]}>TIMER</Text>
+        <OptionRow options={TIMERS} value={timerMinutes} onChange={setTimerMinutes} formatter={(v) => `${v} min`} colors={colors} />
 
-        <Text style={styles.label}>LOAD (KG)</Text>
-        <View style={styles.wheelWrap}>
+        <Text style={[styles.label, { color: colors.quiet }]}>LOAD (KG)</Text>
+        <View style={[styles.wheelWrap, { borderColor: colors.surfaceBase, backgroundColor: colors.surfaceBase }]}>
           <FlatList
             ref={weightListRef}
             data={weightOptions}
@@ -102,11 +102,11 @@ export function SetupScreen({ navigation, route }: Props) {
               offset: WEIGHT_ITEM_HEIGHT * index,
               index,
             })}
-            onTouchStart={(event) => handleWheelTouchStart(event.nativeEvent.locationY)}
+            onTouchStart={(e) => handleWheelTouchStart(e.nativeEvent.locationY)}
             onTouchCancel={() => setIsWheelScrollEnabled(false)}
             onTouchEnd={() => setIsWheelScrollEnabled(false)}
-            onMomentumScrollEnd={(event) => handleWeightSnap(event.nativeEvent.contentOffset.y)}
-            onScrollEndDrag={(event) => handleWeightSnap(event.nativeEvent.contentOffset.y)}
+            onMomentumScrollEnd={(e) => handleWeightSnap(e.nativeEvent.contentOffset.y)}
+            onScrollEndDrag={(e) => handleWeightSnap(e.nativeEvent.contentOffset.y)}
             renderItem={({ item }) => {
               const distanceFromSelected = Math.abs(item - weightKg);
               const selected = distanceFromSelected === 0;
@@ -115,17 +115,15 @@ export function SetupScreen({ navigation, route }: Props) {
                 <Pressable
                   onPress={() => {
                     setWeightKg(item);
-                    weightListRef.current?.scrollToIndex({
-                      index: item - MIN_WEIGHT_KG,
-                      animated: true,
-                    });
+                    weightListRef.current?.scrollToIndex({ index: item - MIN_WEIGHT_KG, animated: true });
                   }}
                   style={styles.wheelItem}
                 >
                   <Text
                     style={[
                       styles.wheelItemText,
-                      selected && styles.wheelItemTextSelected,
+                      { color: colors.quiet },
+                      selected && [styles.wheelItemTextSelected, { color: colors.ink900 }],
                       adjacent && styles.wheelItemTextAdjacent,
                       distanceFromSelected > 1 && styles.wheelItemTextHidden,
                     ]}
@@ -136,10 +134,11 @@ export function SetupScreen({ navigation, route }: Props) {
               );
             }}
           />
-          <View style={styles.wheelSelectionBand} pointerEvents="none" />
+          <View style={[styles.wheelSelectionBand, { borderTopColor: colors.borderSoft, borderBottomColor: colors.borderSoft, backgroundColor: colors.surfaceBase }]} pointerEvents="none" />
         </View>
       </AppCard>
 
+      <View style={styles.previewWrap}>
       <AppCard inverse>
         <Text style={styles.previewKicker}>TODAY PLAN</Text>
         <Text style={styles.previewTitle}>The Giant {version}</Text>
@@ -147,6 +146,7 @@ export function SetupScreen({ navigation, route }: Props) {
           Week {week} · Day {day} · {plan.label} · {timerMinutes} min
         </Text>
       </AppCard>
+      </View>
 
       <View style={styles.actions}>
         <AppButton
@@ -161,10 +161,17 @@ export function SetupScreen({ navigation, route }: Props) {
               },
             })
           }
+          accessibilityLabel="Avvia sessione live"
+          accessibilityHint="Apre la schermata di allenamento con timer"
         >
           Start live workout
         </AppButton>
-        <AppButton variant="ghost" onPress={() => navigation.goBack()}>
+        <AppButton
+          variant="ghost"
+          onPress={() => navigation.goBack()}
+          accessibilityLabel="Indietro"
+          accessibilityHint="Torna alla schermata precedente"
+        >
           Back
         </AppButton>
       </View>
@@ -177,21 +184,36 @@ interface OptionRowProps<T extends string | number> {
   value: T;
   onChange: (next: T) => void;
   formatter?: (value: T) => string;
+  colors: ColorPalette;
 }
 
-function OptionRow<T extends string | number>({ options, value, onChange, formatter }: OptionRowProps<T>) {
+function OptionRow<T extends string | number>({ options, value, onChange, formatter, colors }: OptionRowProps<T>) {
   return (
     <View style={styles.optionRow}>
       {options.map((option) => {
         const selected = option === value;
+        const label = formatter ? formatter(option) : String(option);
         return (
           <Pressable
             key={String(option)}
             onPress={() => onChange(option)}
-            style={[styles.optionChip, selected && styles.optionChipSelected]}
+            style={[
+              styles.optionChip,
+              { borderColor: colors.borderSoft, backgroundColor: colors.surfaceSoft },
+              selected && { borderColor: colors.ink800, backgroundColor: colors.ink800 },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={label}
+            accessibilityState={{ selected }}
           >
-            <Text style={[styles.optionChipText, selected && styles.optionChipTextSelected]}>
-              {formatter ? formatter(option) : String(option)}
+            <Text
+              style={[
+                styles.optionChipText,
+                { color: colors.ink800 },
+                selected && { color: colors.surfaceBase },
+              ]}
+            >
+              {label}
             </Text>
           </Pressable>
         );
@@ -201,63 +223,58 @@ function OptionRow<T extends string | number>({ options, value, onChange, format
 }
 
 const styles = StyleSheet.create({
+  heroWrap: {
+    alignItems: 'center',
+  },
+  previewWrap: {
+    alignItems: 'center',
+  },
   eyebrow: {
     fontSize: 10,
-    color: colors.quiet,
     letterSpacing: 1.5,
     fontWeight: '600',
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   title: {
     fontSize: 30,
     lineHeight: 34,
-    color: colors.ink800,
     fontWeight: '300',
     letterSpacing: -0.4,
+    textAlign: 'center',
   },
   subtitle: {
     marginTop: spacing.xs,
     fontSize: 15,
     lineHeight: 22,
-    color: colors.muted,
+    textAlign: 'center',
   },
   label: {
     marginTop: spacing.sm,
     marginBottom: spacing.xs,
     fontSize: 10,
-    color: colors.quiet,
     letterSpacing: 1.3,
     fontWeight: '600',
+    textAlign: 'center',
   },
   optionRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.xs,
+    justifyContent: 'center',
   },
   optionChip: {
     borderWidth: 1,
-    borderColor: colors.borderSoft,
-    backgroundColor: colors.surfaceSoft,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-  },
-  optionChipSelected: {
-    borderColor: colors.ink800,
-    backgroundColor: colors.ink800,
   },
   optionChipText: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.ink800,
-  },
-  optionChipTextSelected: {
-    color: colors.surfaceBase,
   },
   wheelWrap: {
     height: WEIGHT_ITEM_HEIGHT * WEIGHT_VISIBLE_ROWS,
     borderWidth: 1,
-    borderColor: colors.surfaceBase,
-    backgroundColor: colors.surfaceBase,
     overflow: 'hidden',
   },
   wheelList: {
@@ -273,12 +290,10 @@ const styles = StyleSheet.create({
   },
   wheelItemText: {
     fontSize: 19,
-    color: colors.quiet,
     fontWeight: '300',
     opacity: 0.4,
   },
   wheelItemTextSelected: {
-    color: colors.ink900,
     fontWeight: '600',
     fontSize: 28,
     opacity: 1,
@@ -299,9 +314,6 @@ const styles = StyleSheet.create({
     height: WEIGHT_ITEM_HEIGHT,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderTopColor: colors.borderSoft,
-    borderBottomColor: colors.borderSoft,
-    backgroundColor: colors.surfaceBase,
     opacity: 0.25,
   },
   previewKicker: {
@@ -310,19 +322,23 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     fontWeight: '600',
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   previewTitle: {
     color: '#ffffff',
     fontWeight: '300',
     fontSize: 26,
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   previewText: {
     color: '#e6e6e6',
     fontSize: 14,
+    textAlign: 'center',
   },
   actions: {
     gap: spacing.xs,
     marginBottom: spacing.md,
+    alignItems: 'center',
   },
 });

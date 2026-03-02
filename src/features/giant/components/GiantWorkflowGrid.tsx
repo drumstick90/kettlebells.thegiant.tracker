@@ -35,17 +35,21 @@ export function GiantWorkflowGrid({ sessionCount }: GiantWorkflowGridProps) {
 const styles = StyleSheet.create({
   wrap: {
     gap: spacing.sm,
+    alignItems: 'center',
   },
   kicker: {
     fontSize: 10,
     letterSpacing: 1.5,
     color: colors.quiet,
     fontWeight: '600',
+    alignSelf: 'center',
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.sm,
+    width: '100%',
+    justifyContent: 'center',
   },
   item: {
     width: '48%',
@@ -64,5 +68,6 @@ const styles = StyleSheet.create({
   meta: {
     color: colors.quiet,
     fontSize: 12,
+    alignSelf: 'center',
   },
 });

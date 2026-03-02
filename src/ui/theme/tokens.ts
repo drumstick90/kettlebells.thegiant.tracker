@@ -4,6 +4,7 @@ export const colors = {
   ink700: '#444444',
   muted: '#6f6f6f',
   quiet: '#9d9d9d',
+  chartMuted: '#b0b0b0',
   borderSoft: '#eeeeee',
   borderStrong: '#dddddd',
   surfaceBase: '#ffffff',

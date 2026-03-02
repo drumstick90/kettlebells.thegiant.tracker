@@ -19,7 +19,10 @@ export function HomeScreen({ navigation }: Props) {
 
   return (
     <ScreenScaffold>
-      <GiantIdentityRow />
+      <View style={styles.centered}>
+        <GiantIdentityRow />
+      </View>
+      <View style={styles.heroWrap}>
       <AppCard>
         <Text style={styles.eyebrow}>THE GIANT TRACKER</Text>
         <Text style={styles.title}>
@@ -35,6 +38,7 @@ export function HomeScreen({ navigation }: Props) {
           </AppButton>
         </View>
       </AppCard>
+      </View>
 
       <GiantCycleSummaryCard version="1.0" week={1} day={1} />
       <GiantWorkflowGrid sessionCount={sessionCount} />
@@ -62,12 +66,19 @@ export function HomeScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
+  centered: {
+    alignItems: 'center',
+  },
+  heroWrap: {
+    alignItems: 'center',
+  },
   eyebrow: {
     fontSize: 10,
     letterSpacing: 1.5,
     color: colors.quiet,
     fontWeight: '600',
     marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   title: {
     fontSize: 30,
@@ -75,6 +86,7 @@ const styles = StyleSheet.create({
     color: colors.ink800,
     fontWeight: '300',
     letterSpacing: -0.5,
+    textAlign: 'center',
   },
   titleStrong: {
     fontWeight: '600',
@@ -85,27 +97,32 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 15,
     lineHeight: 22,
+    textAlign: 'center',
   },
   ctaRow: {
     marginTop: spacing.md,
     flexDirection: 'row',
     gap: spacing.xs,
     flexWrap: 'wrap',
+    justifyContent: 'center',
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '300',
     color: colors.ink900,
     marginBottom: spacing.sm,
+    textAlign: 'center',
   },
   linksRow: {
     flexDirection: 'row',
     gap: spacing.xs,
     flexWrap: 'wrap',
     marginBottom: spacing.xs,
+    justifyContent: 'center',
   },
   meta: {
     color: colors.quiet,
     fontSize: 12,
+    textAlign: 'center',
   },
 });

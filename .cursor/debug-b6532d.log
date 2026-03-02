@@ -1,0 +1,6 @@
+{"sessionId":"b6532d","location":"VictoryTestScreen.tsx","message":"VictoryTestScreen module loaded (import ok)","data":{},"timestamp":1772274779926}
+{"sessionId":"b6532d","location":"VictoryTestScreen.tsx","message":"VictoryTestScreen module loaded (import ok)","data":{},"timestamp":1772274792143}
+{"sessionId":"b6532d","location":"VictoryTestScreen.tsx","message":"VictoryTestScreen render","data":{"chartDataLen":11,"branch":"chart"},"timestamp":1772274802265}
+{"sessionId":"b6532d","location":"VictoryTestScreen.tsx","message":"before CartesianChart","data":{"dataLen":11},"timestamp":1772274802265}
+{"sessionId":"b6532d","location":"VictoryTestScreen.tsx","message":"VictoryTestScreen render","data":{"chartDataLen":11,"branch":"chart"},"timestamp":1772274802282}
+{"sessionId":"b6532d","location":"VictoryTestScreen.tsx","message":"before CartesianChart","data":{"dataLen":11},"timestamp":1772274802282}

@@ -1,16 +1,30 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SCHEMA_VERSION, type LocalDatabase } from '../schema';
 import { DEFAULT_PROGRAMS } from '../schema/programs';
+import type { ProfileId } from './profiles';
 import type { StorageAdapter } from './types';
 import { migrateDatabase } from './migration';
 import { validateLocalDatabase } from './validation';
 
-/** Seed data per dev: usato quando non esiste ancora nulla in AsyncStorage */
+/** Seed data per dev: usato per profilo test e quando non esiste ancora nulla */
 const SEED_DATA = require('../../data/seed-workouts.json') as unknown;
 
-const DB_KEY = 'kettlebell-tracker:db';
-const DB_BACKUP_KEY = 'kettlebell-tracker:db:backup';
-const DB_TMP_KEY = 'kettlebell-tracker:db:tmp';
+/** Chiave legacy (pre-profili): migrata al profilo test */
+const LEGACY_DB_KEY = 'kettlebell-tracker:db';
+const LEGACY_BACKUP_KEY = 'kettlebell-tracker:db:backup';
+const LEGACY_TMP_KEY = 'kettlebell-tracker:db:tmp';
+
+function dbKey(profile: ProfileId): string {
+  return `kettlebell-tracker:db:${profile}`;
+}
+
+function dbBackupKey(profile: ProfileId): string {
+  return `kettlebell-tracker:db:${profile}:backup`;
+}
+
+function dbTmpKey(profile: ProfileId): string {
+  return `kettlebell-tracker:db:${profile}:tmp`;
+}
 
 function nowIso(): string {
   return new Date().toISOString();
@@ -30,94 +44,134 @@ function createEmptyDb(): LocalDatabase {
   };
 }
 
-async function writeAtomically(nextDb: LocalDatabase): Promise<void> {
-  const payload = JSON.stringify(nextDb);
-  await AsyncStorage.setItem(DB_TMP_KEY, payload);
-  await AsyncStorage.setItem(DB_KEY, payload);
-  await AsyncStorage.removeItem(DB_TMP_KEY);
-}
+/**
+ * Migra i dati legacy (pre-profili) al profilo test.
+ * Chiamata una tantum al primo avvio con il sistema profili.
+ */
+async function migrateLegacyToTest(): Promise<void> {
+  const raw = await AsyncStorage.getItem(LEGACY_DB_KEY);
+  if (!raw) return;
 
-export const localAdapter: StorageAdapter = {
-  async read() {
-    const raw = await AsyncStorage.getItem(DB_KEY);
-    if (!raw) {
-      return null;
-    }
-
-    let parsed: unknown;
+  const parsed: unknown = (() => {
     try {
-      parsed = JSON.parse(raw);
+      return JSON.parse(raw);
     } catch {
       return null;
     }
+  })();
 
-    const validation = validateLocalDatabase(parsed);
-    if (!validation.ok) {
-      return null;
-    }
+  const validation = validateLocalDatabase(parsed);
+  if (!validation.ok) return;
 
-    return validation.value;
-  },
+  const migrated = migrateDatabase(validation.value);
+  await writeForProfile('test', migrated.db);
+  await AsyncStorage.multiRemove([LEGACY_DB_KEY, LEGACY_BACKUP_KEY, LEGACY_TMP_KEY]);
+}
 
-  async write(data) {
-    const validation = validateLocalDatabase(data);
-    if (!validation.ok) {
-      throw new Error(`Refusing to persist invalid database: ${validation.error}`);
-    }
+async function writeForProfile(profile: ProfileId, nextDb: LocalDatabase): Promise<void> {
+  const payload = JSON.stringify(nextDb);
+  const tmp = dbTmpKey(profile);
+  const main = dbKey(profile);
+  await AsyncStorage.setItem(tmp, payload);
+  await AsyncStorage.setItem(main, payload);
+  await AsyncStorage.removeItem(tmp);
+}
 
-    const currentRaw = await AsyncStorage.getItem(DB_KEY);
-    if (currentRaw) {
-      await AsyncStorage.setItem(DB_BACKUP_KEY, currentRaw);
-    }
+export function createLocalAdapter(profile: ProfileId): StorageAdapter {
+  return {
+    async read() {
+      const raw = await AsyncStorage.getItem(dbKey(profile));
+      if (!raw) return null;
 
-    await writeAtomically(validation.value);
-  },
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        return null;
+      }
 
-  async exists() {
-    const raw = await AsyncStorage.getItem(DB_KEY);
-    return raw !== null;
-  },
+      const validation = validateLocalDatabase(parsed);
+      if (!validation.ok) return null;
+      return validation.value;
+    },
 
-  async clear() {
-    await AsyncStorage.multiRemove([DB_KEY, DB_BACKUP_KEY, DB_TMP_KEY]);
-  },
-};
+    async write(data) {
+      const validation = validateLocalDatabase(data);
+      if (!validation.ok) {
+        throw new Error(`Refusing to persist invalid database: ${validation.error}`);
+      }
 
-export async function loadOrCreateDb(): Promise<LocalDatabase> {
-  const existing = await localAdapter.read();
+      const currentRaw = await AsyncStorage.getItem(dbKey(profile));
+      if (currentRaw) {
+        await AsyncStorage.setItem(dbBackupKey(profile), currentRaw);
+      }
+
+      await writeForProfile(profile, validation.value);
+    },
+
+    async exists() {
+      const raw = await AsyncStorage.getItem(dbKey(profile));
+      return raw !== null;
+    },
+
+    async clear() {
+      await AsyncStorage.multiRemove([
+        dbKey(profile),
+        dbBackupKey(profile),
+        dbTmpKey(profile),
+      ]);
+    },
+  };
+}
+
+export async function loadOrCreateDb(profile: ProfileId): Promise<LocalDatabase> {
+  await migrateLegacyToTest();
+
+  const adapter = createLocalAdapter(profile);
+
+  const trySeed = async (): Promise<LocalDatabase | null> => {
+    const seedValidation = validateLocalDatabase(SEED_DATA);
+    if (!seedValidation.ok) return null;
+    const migrated = migrateDatabase(seedValidation.value);
+    await adapter.write(migrated.db);
+    return migrated.db;
+  };
+
+  const existing = await adapter.read();
+
   if (!existing) {
-    const backupRaw = await AsyncStorage.getItem(DB_BACKUP_KEY);
+    const backupRaw = await AsyncStorage.getItem(dbBackupKey(profile));
     if (backupRaw) {
       try {
         const backupParsed = JSON.parse(backupRaw) as unknown;
         const backupValidation = validateLocalDatabase(backupParsed);
         if (backupValidation.ok) {
           const migrated = migrateDatabase(backupValidation.value);
-          await localAdapter.write(migrated.db);
+          await adapter.write(migrated.db);
           return migrated.db;
         }
       } catch {
-        // Ignore backup parse errors and create a fresh DB.
+        /* ignore */
       }
     }
 
-    // Prova seed per dev: data/seed-workouts.json ha sessioni di prova
-    const seedValidation = validateLocalDatabase(SEED_DATA);
-    if (seedValidation.ok) {
-      const migrated = migrateDatabase(seedValidation.value);
-      await localAdapter.write(migrated.db);
-      return migrated.db;
-    }
+    const seeded = await trySeed();
+    if (seeded) return seeded;
 
     const emptyDb = createEmptyDb();
-    await localAdapter.write(emptyDb);
+    await adapter.write(emptyDb);
     return emptyDb;
+  }
+
+  // Dev: profilo test — se ci sono meno di 2 sessioni, usa il seed per far funzionare i chart
+  if (profile === 'test' && existing.sessions.length < 2) {
+    const seeded = await trySeed();
+    if (seeded) return seeded;
   }
 
   const migrated = migrateDatabase(existing);
   if (migrated.migrated) {
-    await localAdapter.write(migrated.db);
+    await adapter.write(migrated.db);
   }
   return migrated.db;
 }
-
